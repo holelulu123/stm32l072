@@ -3,7 +3,8 @@
         {
             "name": "STM32",
             "includePath": [
-                "Core/Inc"
+                "Core/Inc",
+                "/usr/arm-none-eabi/include/"
             ]
         }
     ],

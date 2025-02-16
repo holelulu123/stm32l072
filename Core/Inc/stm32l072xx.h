@@ -406,7 +406,7 @@ typedef struct
   */
 typedef struct
 {
-  __IO uint32_t CR;            /*!< RCC clock control register,                                   Address offset: 0x00 */
+  __IO uint32_t   CR;            /*!< RCC clock control register,                                   Address offset: 0x00 */
   __IO uint32_t ICSCR;         /*!< RCC Internal clock sources calibration register,              Address offset: 0x04 */
   __IO uint32_t CRRCR;         /*!< RCC Clock recovery RC register,                               Address offset: 0x08 */
   __IO uint32_t CFGR;          /*!< RCC Clock configuration register,                             Address offset: 0x0C */
