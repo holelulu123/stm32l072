@@ -8,6 +8,7 @@
         "stdio.h": "c",
         "string.h": "c",
         "rcc.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "l80_m39.h": "c"
     }
 }
