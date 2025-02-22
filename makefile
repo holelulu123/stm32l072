@@ -22,7 +22,8 @@ STARTUP = $(shell find Core/Startup -name '*.s')
 $(info Startup file is: $(STARTUP))
 
 # Define Header files - find all the .h files 
-INCDIR = Core/Inc
+INCDIR += Core/Inc
+INCDIR += Core/Drivers
 
 # Define Source Files - find all the .c files
 SRCS = $(shell find Core/Src -name '*.c')

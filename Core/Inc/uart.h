@@ -23,6 +23,7 @@ typedef struct UART_Configuration {
 // Functions for UART logs and debugging. 
 void UART_debug_set_registers(int clock_rate, int baud_rate);
 void UART_debug_sendMessage(char message[]);
+void UART_printf(const char *format, ...);
 // Function for UART for Reading NMEA GPS messages.
 
 void UART_l80_m39_set_registers(int clock_rate, int baud_rate);

@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "stm32l072xx.h"
 #include "uart.h"
 #include "l80_m39.h"
+
 
 void UART_debug_set_registers(int clock_rate, int baud_rate){
     /*
@@ -195,5 +197,15 @@ When overrun error occurs
 
         }
     }
-    GPS_NMEA_MessageParser(nmea_message);
+    GPS_NMEA_MessageNavigator(nmea_message);
+}
+
+void UART_printf(const char *format, ...){
+    char buffer[128];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    UART_debug_sendMessage(buffer);
+
 }
