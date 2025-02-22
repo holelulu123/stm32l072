@@ -5,6 +5,8 @@
 #include "uart.h"
 #include "nmea_parser.h"
 
+
+extern float nmea_latitude = 0; 
 extern int nmea_data_valid = 0; 
 extern int nmea_hour = 0; 
 extern int nmea_minute = 0;
@@ -40,12 +42,28 @@ void timeParser(char UTC_Time[]){
 
 }
 
-void longitudeParser(char longitude[]){
+void LatitudeParser(char latitude[]){
     /*
-    This function Takes as an argument literal string that represent the longitude in the format of 
+    This function Takes as an argument literal string that represent the latitude in the format of 
     ddmm.mmmm(degree and minutes) and saved the value in a float value in a global variable.
+    first we need to convert it from ddm format to dd 
+    this formula is dd + (mm.mmm / 60)
+    for example: 3150.7238 = 31 + (50.7238 / 60) = 31.845396
     
     */
+    
+    if (latitude[0] != '\0'){
+        float t1 = (latitude[0] - '0') * 10 + (latitude[1] - '0');
+        float t2 = (latitude[2] - '0') * 10 + 
+        (latitude[3] - '0') + 
+        (latitude[5] - '0') * 0.1 +
+        (latitude[6] - '0') * 0.01 +
+        (latitude[7] - '0') * 0.001 +
+        (latitude[8] - '0') * 0.0001;
+        float final_lat = t1 + (t2/60);
+        nmea_latitude = final_lat;
+    }
+
 }
 
 
@@ -69,9 +87,12 @@ void GPS_NMEA_MessageNavigator(char message[]){
     }
     message_id[index] = '\0';
     if (strcmp(message_id, NMEA_MESSAGE_ID_GPRMC) == 0){
+        // UART_printf("%s\r\n",message);
         GPRMC_MessageParser(message);
+        // The prints needs to be deleted, but used here as a test.
         UART_printf("Hour: %d | Minute: %d | Second: %d | miliseconds: %d\r\n",nmea_hour, nmea_minute, nmea_second, nmea_millisecond);
         UART_printf("Data Valid is: %d\r\n", nmea_data_valid);
+        UART_printf("Latitude is: %f\r\n", nmea_latitude);
     }
     
 

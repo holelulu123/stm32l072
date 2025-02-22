@@ -20,10 +20,10 @@
 
 
 // GPS Parameters 
-extern float* nmea_longtitude;
-extern float* nmea_latitude;
-extern float* nmea_altitude;
-extern float* nmea_velocity;
+extern float nmea_longtitude;
+extern float nmea_latitude;
+extern float nmea_altitude;
+extern float nmea_velocity;
 extern int nmea_number_of_sv;
 extern int nmea_fixed_3d;
 extern int nmea_antenna;
@@ -39,7 +39,7 @@ extern int nmea_millisecond;
 
 void GPS_NMEA_MessageNavigator(char message[]);
 void timeParser(char utcTime[]);
-void longitudeParser(char longtitude[]);
+void LatitudeParser(char latitude[]);
 void DataValid_Check(char data_valid[]);
 
 #endif

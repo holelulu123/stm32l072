@@ -34,6 +34,10 @@ void GPRMC_MessageParser(char message[]){
                 case 2:
                     DataValid_Check(temp);
                     break;
+                // Latitude Check
+                case 3:
+                    LatitudeParser(temp);
+                    break;
                     
                     
            }
