@@ -5,7 +5,10 @@
 #include "uart.h"
 #include "nmea_parser.h"
 
-
+extern float nmea_speed = 0;
+extern char nmea_N_S = '\0';
+extern char nmea_E_W = '\0';
+extern float nmea_longitude = 0;
 extern float nmea_latitude = 0; 
 extern int nmea_data_valid = 0; 
 extern int nmea_hour = 0; 
@@ -13,6 +16,62 @@ extern int nmea_minute = 0;
 extern int nmea_second = 0; 
 extern int nmea_millisecond = 0; 
 
+void SpeedParser(char speed[]){
+    /*
+    Function Parses the speed of the GPS receiver, convert it from knots to km/h
+    and saves the value
+    */
+    // float knots_speed = speed 
+    UART_printf("Speed is: %s\r\n", speed);
+}
+
+void longitudeParser(char longitude[]){
+    /*
+    This function Takes as an argument literal string that represent the longitude in the format of 
+    dddmm.mmmm(degree and minutes) and saved the value in a float value in a global variable.
+    first we need to convert it from ddm format to dd 
+    this formula is dd + (mm.mmm / 60)
+    for example: 3150.7238 = 31 + (50.7238 / 60) = 31.845396
+    
+    */
+    if (longitude[0] != '\0'){
+        float t1 = (longitude[0] - '0') * 100 + (longitude[1] - '0') * 10 + (longitude[2] - '0');
+        float t2 = (longitude[3] - '0') * 10 + 
+        (longitude[4] - '0') + 
+        (longitude[6] - '0') * 0.1 +
+        (longitude[7] - '0') * 0.01 +
+        (longitude[8] - '0') * 0.001 +
+        (longitude[9] - '0') * 0.0001;
+        float final_lat = t1 + (t2/60);
+        nmea_longitude = final_lat;
+    }
+}
+
+void E_W_Parser(char E_W[]){
+    /*
+    This function parses the N/S data and save it.
+    */
+    if (strcmp(E_W, NMEA_EAST) == 0){
+        nmea_E_W = 'E';
+    }
+    else if(strcmp(E_W, NMEA_WEST) == 0){
+        nmea_E_W = 'W';
+    }
+
+}
+
+void N_S_Parser(char N_S[]){
+    /*
+    This function parses the N/S data and save it.
+    */
+    if (strcmp(N_S, NMEA_NORTH) == 0){
+        nmea_N_S = 'N';
+    }
+    else if(strcmp(N_S, NMEA_SOUTH) == 0){
+        nmea_N_S = 'S';
+    }
+
+}
 
 void DataValid_Check(char data_valid[]){
     /*
@@ -87,12 +146,11 @@ void GPS_NMEA_MessageNavigator(char message[]){
     }
     message_id[index] = '\0';
     if (strcmp(message_id, NMEA_MESSAGE_ID_GPRMC) == 0){
-        // UART_printf("%s\r\n",message);
         GPRMC_MessageParser(message);
         // The prints needs to be deleted, but used here as a test.
-        UART_printf("Hour: %d | Minute: %d | Second: %d | miliseconds: %d\r\n",nmea_hour, nmea_minute, nmea_second, nmea_millisecond);
-        UART_printf("Data Valid is: %d\r\n", nmea_data_valid);
-        UART_printf("Latitude is: %f\r\n", nmea_latitude);
+        UART_printf("Time: %02d:%02d:%02d\r\n",nmea_hour, nmea_minute, nmea_second);
+        UART_printf("Latitude: %f\r\n", nmea_latitude);
+        UART_printf("Longitude is: %f\r\n", nmea_longitude);
     }
     
 

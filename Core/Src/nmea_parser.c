@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "nmea_parser.h"
 #include "l80_m39.h"
-
+#include "uart.h"
 
 
 void GPRMC_MessageParser(char message[]){
@@ -38,6 +38,18 @@ void GPRMC_MessageParser(char message[]){
                 case 3:
                     LatitudeParser(temp);
                     break;
+                case 4:
+                    N_S_Parser(temp);
+                    break;
+                case 5: 
+                    longitudeParser(temp);
+                    break;
+                case 6:
+                    E_W_Parser(temp);
+                    break;
+                case 7:
+                    SpeedParser(temp);
+                    break;                    
                     
                     
            }
@@ -59,17 +71,13 @@ void GPRMC_MessageParser(char message[]){
        }
        ptr++;
    }
-   temp[index] = '\0';
-   unsigned int checksum_hex; // the checksum that sent to us for the receiver
-   sscanf(temp, "%x", &checksum_hex);  // Convert string to hex
+//    temp[index] = '\0';
+//    unsigned int checksum_hex; // the checksum that sent to us for the receiver
+//    sscanf(temp, "%x", &checksum_hex);  // Convert string to hex
    
-   char result = (char)checksum_hex;  // Cast to char
-   if (result == checksum){
-       printf("Equal\n");
-   }
-   else {
-       printf("Not Equal\n");
-   }
+//    char result = (char)checksum_hex;  // Cast to char
+//    Now if we want we can compare result (found) and checksum (calculated) to check for errors
+//    in the UART communication
     
 
 

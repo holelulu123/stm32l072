@@ -18,8 +18,18 @@
 #define NMEA_DATA_VALID "A"
 #define NMEA_DATA_INVALID "V"
 
+#define NMEA_NORTH "N"
+#define NMEA_SOUTH "S"
+
+#define NMEA_EAST "E"
+#define NMEA_WEST "W"
+
+#define CONSTANT_KNOTS_TO_KMH 1.852
 
 // GPS Parameters 
+extern float nmea_speed;
+extern char nmea_N_S;
+extern char nmea_E_W;
 extern float nmea_longtitude;
 extern float nmea_latitude;
 extern float nmea_altitude;
@@ -39,7 +49,10 @@ extern int nmea_millisecond;
 
 void GPS_NMEA_MessageNavigator(char message[]);
 void timeParser(char utcTime[]);
-void LatitudeParser(char latitude[]);
 void DataValid_Check(char data_valid[]);
-
+void LatitudeParser(char latitude[]);
+void longitudeParser(char longitude[]);
+void E_W_Parser(char E_W[]);
+void N_S_Parser(char N_S[]);
+void SpeedParser(char speed[]);
 #endif
