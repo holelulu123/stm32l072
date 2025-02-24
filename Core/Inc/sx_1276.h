@@ -1,13 +1,10 @@
 #ifndef __SX_1276_H
 #define __SX_1276_H
+#include <stdio.h>
 
 // Registers Map
 #define RegFifo                        ((__uint8_t)0x00) // r/w register
 #define RegOpMode                      ((__uint8_t)0x01)
-#define RegBitrateMsb                  ((__uint8_t)0x02)
-#define RegBitrateLsb                  ((__uint8_t)0x03)
-#define RegFdevMsb                     ((__uint8_t)0x04)
-#define RegFdevLsb                     ((__uint8_t)0x05)
 #define RegFrfMsb                      ((__uint8_t)0x06)
 #define RegFrfMid                      ((__uint8_t)0x07)
 #define RegFrfLsb                      ((__uint8_t)0x08)

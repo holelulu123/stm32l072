@@ -11,6 +11,7 @@
         "uart.h": "c",
         "l80_m39.h": "c",
         "chrono": "c",
-        "nmea_parser.h": "c"
+        "nmea_parser.h": "c",
+        "system_error": "cpp"
     }
 }
