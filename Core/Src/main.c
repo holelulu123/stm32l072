@@ -5,7 +5,7 @@
 #include "rcc.h"
 #include "stdio.h"
 #include "uart.h"
-
+#include "spi.h"
 void SystemInit()
 {  
 }
@@ -27,6 +27,7 @@ int main(void)
     UART_l80_m39_set_registers(uart_config.clock_rate,
     uart_config.baud_rate
     );
+
     
     RCC->IOPENR |= (0x1 << 1); // Enable GPIOB clock
     RCC->IOPSMENR |= (0x1 << 1); //Enable the GPIO B
@@ -35,12 +36,15 @@ int main(void)
     GPIOB->MODER &= ~(0x3 << 10); // Resets the necessary pins
     GPIOB->MODER |= (0x1 << 10);  // Set as output
     GPIOB->OSPEEDR |= (0x3 << 10);
-    int delay = 3;
+    int delay = 5;
     while(1) {
-        UART_l80_m39_ReadMessages();
+        // UART_l80_m39_ReadMessages();
+        SetRegisters_SPI1();
+        char* data = "'";
+        SPI_Write(data);
+        SPI_Read();
         // GPIOB->ODR |= (0x1 << 5); // Outputs 1 through the PB5
-        // delay_ms(delay);
-        // UART_debug_sendMessage("Hello world!\r\n");
+        delay_ms(delay);
         // 
         // GPIOB->ODR &= ~(0x1 << 5); // Outputs 1 through the PB5 
         // delay_ms(delay);

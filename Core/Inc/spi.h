@@ -10,6 +10,7 @@
 #define SPI1_SX1276_AF 0
 
 void SetRegisters_SPI1();
-void SPI_Write(__uint8_t *message);
+void SPI_Write(char *data);
+void SPI_Read();
 
 #endif

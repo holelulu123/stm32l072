@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // Registers Map
-#define RegFifo                        ((__uint8_t)0x00) // r/w register
+#define RegFifo                        ((__uint8_t)0x00) 
 #define RegOpMode                      ((__uint8_t)0x01)
 #define RegFrfMsb                      ((__uint8_t)0x06)
 #define RegFrfMid                      ((__uint8_t)0x07)
