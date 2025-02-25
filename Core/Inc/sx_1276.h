@@ -64,4 +64,13 @@
 #define RegPll                         ((__uint8_t)0x70)
 
 
+// SX 1276 Pins
+#define GPIOA_TCXO_POWER            12
+#define GPIOA_ANT_SWITCH_RX         1
+
+#define GPIOC_ANT_SWITCH_TX_BOOST   1
+#define GPIOC_ANT_SWITCH_TX_RFO     2
+#define GPIOC_RESET                 0
+
+
 #endif

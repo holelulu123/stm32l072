@@ -41,8 +41,7 @@ int main(void)
         // UART_l80_m39_ReadMessages();
         SetRegisters_SPI1();
         char* data = "'";
-        SPI_Write(data);
-        SPI_Read();
+        SPI_ReadRegister(data);
         // GPIOB->ODR |= (0x1 << 5); // Outputs 1 through the PB5
         delay_ms(delay);
         // 
