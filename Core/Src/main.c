@@ -37,16 +37,19 @@ int main(void)
     GPIOB->MODER |= (0x1 << 10);  // Set as output
     GPIOB->OSPEEDR |= (0x3 << 10);
     int delay = 5;
-    __uint8_t address = 0x42;
-    __uint8_t data = 0x31;  
+    __uint8_t address = 0x0;
+    // __uint8_t data = 0x31;  
     Configurates_SPI1();
     // SPI_WriteRegister(address ,data);
     while(1) {
         // UART_l80_m39_ReadMessages();
+        if (address == 0x40){
+            address = 0x0;
+        }
         SPI_ReadRegister(address);
         // GPIOB->ODR |= (0x1 << 5); // Outputs 1 through the PB5
         delay_ms(delay);
-        data ++;
+        address ++;
         // 
         // GPIOB->ODR &= ~(0x1 << 5); // Outputs 1 through the PB5 
         // delay_ms(delay);
