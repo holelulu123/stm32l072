@@ -5,10 +5,11 @@
 // SPI GPIO configuration
 #define GPIOA_MOSI_PIN              7
 #define GPIOA_MISO_PIN              6 
-#define GPIOA_NSS_PIN               15
-#define GPIOB_SCLK_PIN              3
+#define GPIOA_SCLK_PIN              5
+#define GPIOA_NSS_PIN               4
 
-void SetRegisters_SPI1();
-void SPI_ReadRegister(char *data);
+void Configurates_SPI1();
+void SPI_ReadRegister(__uint8_t address);
+void SPI_WriteRegister(__uint8_t address, __uint8_t data);
 
 #endif
