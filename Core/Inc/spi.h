@@ -1,15 +1,11 @@
 #ifndef __SPI_H
 #define __SPI_H
 #include <stdio.h>
+#include "stm32l072xx.h"
 
-// SPI GPIO configuration
-#define GPIOA_MOSI_PIN              7
-#define GPIOA_MISO_PIN              6 
-#define GPIOB_SCLK_PIN              3
-#define GPIOA_NSS_PIN               15
 
-void Configurates_SPI1();
-void SPI_ReadRegister(__uint8_t address);
-void SPI_WriteRegister(__uint8_t address, __uint8_t data);
+void Configurates_SPI(SPI_TypeDef *SPI_interface);
+__uint8_t SPI_ReadRegister(__uint8_t address, SPI_TypeDef *SPI_interface);
+void SPI_WriteRegister(__uint8_t address, __uint8_t data, SPI_TypeDef *SPI_interface);
 
 #endif

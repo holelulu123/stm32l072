@@ -12,6 +12,7 @@
         "l80_m39.h": "c",
         "chrono": "c",
         "nmea_parser.h": "c",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "spi.h": "c"
     }
 }

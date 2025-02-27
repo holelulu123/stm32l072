@@ -63,14 +63,22 @@
 #define RegAgcThresh3                  ((__uint8_t)0x64)
 #define RegPll                         ((__uint8_t)0x70)
 
+/*
+Common Settings for the SX1276
+*/
+#define LORA_Mode                      ((__uint8_t)0x1 << 7)
+#define Modulation_Scheme_OOK          ((__uint8_t)0x1 << 5)
+#define Low_Frequnecy_Mode_On          ((__uint8_t)0x1 << 3)
+#define Transceiver_Mode_Msk           ((__uint8_t)0x7 << 0)
+#define Transceiver_Mode_Stdby         ((__uint8_t)0x1 << 0)
+#define Transceiver_Mode_FS_TX         ((__uint8_t)0x1 << 1)
+#define Transceiver_Mode_Transmitter   ((__uint8_t)0x3 << 0)
+#define Transceiver_Mode_FS_RX         ((__uint8_t)0x1 << 2)
+#define Transceiver_Mode_Receiver      ((__uint8_t)0x5 << 0)
 
-// SX 1276 Pins
-#define GPIOA_TCXO_POWER            12
-#define GPIOA_ANT_SWITCH_RX         1
-
-#define GPIOC_ANT_SWITCH_TX_BOOST   1
-#define GPIOC_ANT_SWITCH_TX_RFO     2
-#define GPIOC_RESET                 0
+/*
+Transmitter settings for the SX1276
+*/
 
 
 #endif
