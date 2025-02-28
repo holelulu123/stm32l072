@@ -77,8 +77,53 @@ Common Settings for the SX1276
 #define Transceiver_Mode_Receiver      ((__uint8_t)0x5 << 0)
 
 /*
-Transmitter settings for the SX1276
+RF blocks settings for the SX1276
 */
+#define PA_Boost_ON                    ((__uint8_t)0x1 << 0)
+#define Overload_current_protection_on ((__uint8_t)0x1 << 5)
 
+#define LNA_Gain_G1                    ((__uint8_t)0x1 << 5)
+#define LNA_Gain_G2                    ((__uint8_t)0x2 << 5)
+#define LNA_Gain_G3                    ((__uint8_t)0x3 << 5)
+#define LNA_Gain_G4                    ((__uint8_t)0x4 << 5)
+#define LNA_Gain_G5                    ((__uint8_t)0x5 << 5)
+#define LNA_Gain_G6                    ((__uint8_t)0x6 << 5)
+#define RFI_HF_LNA_Current_adj         ((__uint8_t)0x3 << 0)
+// #define RFI_HF_LNA_Current_adj         ((__uint8_t)0x3 << 3) CHECK ON THIS !!!!!!!
+#define ImplicitHeaderModeOn           ((__uint8_t)0x1 << 0)
+
+typedef enum {
+    LORA_BW_007                      = ((__uint8_t)0x0 << 4),   
+    LORA_BW_010                      = ((__uint8_t)0x1 << 4),
+    LORA_BW_015                      = ((__uint8_t)0x2 << 4),
+    LORA_BW_020                      = ((__uint8_t)0x3 << 4),
+    LORA_BW_031                      = ((__uint8_t)0x4 << 4),
+    LORA_BW_041                      = ((__uint8_t)0x5 << 4),
+    LORA_BW_062                      = ((__uint8_t)0x6 << 4),
+    LORA_BW_125                      = ((__uint8_t)0x7 << 4),
+    LORA_BW_250                      = ((__uint8_t)0x8 << 4),
+    LORA_BW_500                      = ((__uint8_t)0x9 << 4),
+}LoraBandWidth;
+ 
+typedef enum {
+    LORA_CR_4_5                      = ((__uint8_t)0x1 << 1),
+    LORA_CR_4_6                      = ((__uint8_t)0x2 << 1),
+    LORA_CR_4_7                      = ((__uint8_t)0x3 << 1),
+    LORA_CR_4_8                      = ((__uint8_t)0x4 << 1),
+}LoraCodingRates;
+
+typedef enum{
+    LORA_SF6                         = ((__uint8_t)0x06 << 4),
+    LORA_SF7                         = ((__uint8_t)0x07 << 4),
+    LORA_SF8                         = ((__uint8_t)0x08 << 4),
+    LORA_SF9                         = ((__uint8_t)0x09 << 4),
+    LORA_SF10                        = ((__uint8_t)0x0A << 4),
+    LORA_SF11                        = ((__uint8_t)0x0B << 4),
+    LORA_SF12                        = ((__uint8_t)0x0C << 4),
+
+}LoRaSpreadingFactors;
+
+#define TxContinuesMode                ((__uint8_t)0x1 << 3)
+#define RxPayloadCrcOn                 ((__uint8_t)0x1 << 2)
 
 #endif

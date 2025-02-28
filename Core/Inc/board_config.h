@@ -1,10 +1,12 @@
 #ifndef __BOARD_CONFIG_H
 #define __BOARD_CONFIG_H
+
+#include "gpio.h"
 #include "stm32l072xx.h"
 
 //  Pins Configuration
-    /*
-    This file declare the pins and GPIOs used for each pin I/O
+    /** 
+    * This file declare the pins and GPIOs used for each pin I/O
     */
    
 // GPIO configuration
@@ -52,5 +54,16 @@
 
 #define Debugger_UART_RX_GPIO       GPIOA
 #define Debugger_UART_RX_PIN        3
+
+
+static const GPIO_Object GPIOB_5 = {
+    .PinNumber          = GPIO_PIN_5,
+    .Name               = GPIO_B,
+    .Mode               = OutputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = NoPull,
+    .Type               = PushPull,
+    .AF                 = AF0
+};
 
 #endif

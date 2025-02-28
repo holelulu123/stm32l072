@@ -1,11 +1,13 @@
 #define STM32L0xx
 #define CPU_FREQ 16000000
 #include "stm32l072xx.h"
+#include "gpio.h"
+#include "board_config.h"
 #include "main.h"
 #include "rcc.h"
 #include "uart.h"
-#include "board_config.h"
 #include "spi.h"
+
 void SystemInit()
 {  
 }
@@ -30,24 +32,28 @@ int main(void)
 
     
     RCC->IOPENR |= (0x1 << 1); // Enable GPIOB clock
-    RCC->IOPSMENR |= (0x1 << 1); //Enable the GPIO B
+    
 
-
-    GPIOB->MODER &= ~(0x3 << 10); // Resets the necessary pins
-    GPIOB->MODER |= (0x1 << 10);  // Set as output
-    GPIOB->OSPEEDR |= (0x3 << 10);
-    int delay = 5;
-    __uint8_t address = 0x10;
-    __uint8_t data = 0x15;  
-    Configurates_SPI(SX1276_SPI);
+    // GPIOB->MODER &= ~(0x3 << 10); // Resets the necessary pins
+    // GPIOB->MODER |= (0x1 << 10);  // Set as output
+    // GPIOB->OSPEEDR |= (0x3 << 10);
+    
+    // int delay = 5;
+    // __uint8_t address = 0x10;
+    // __uint8_t data = 0x15;  
+    // Configurates_SPI(SX1276_SPI);
     // SPI_WriteRegister(address ,data);
+    GPIO_Init(GPIOB_5, GPIOB);
     while(1) {
+        GPIO_Set(GPIOB_5, GPIOB);
         // UART_l80_m39_ReadMessages();
-        if (data > 0x50){data = 0;}
-        SPI_ReadRegister(address, SX1276_SPI);
-        delay_ms(delay);
-        SPI_WriteRegister(address, data, SX1276_SPI);
-        data ++;
+        // if (data > 0x50){data = 0;}
+        // SPI_ReadRegister(address, SX1276_SPI);
+        delay_ms(10);
+        // SPI_WriteRegister(address, data, SX1276_SPI);
+        // data ++;
+        GPIO_Reset(GPIOB_5, GPIOB);
+        delay_ms(10);
     }
 }
 

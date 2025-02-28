@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "stm32l072xx.h"
+#include "board_config.h"
 #include "spi.h"
 #include "uart.h"
 #include "sx_1276.h"
-#include "board_config.h"
 
 
 void Configurates_SPI(SPI_TypeDef *SPI_interface){
@@ -85,7 +85,7 @@ void SPI_WriteRegister(__uint8_t address, __uint8_t data, SPI_TypeDef *SPI_inter
     NSS_GPIO->BSRR = GPIO_BSRR_BS_15;
 }
 
-void SPI_ReadRegister(__uint8_t address, SPI_TypeDef *SPI_interface){
+__uint8_t SPI_ReadRegister(__uint8_t address, SPI_TypeDef *SPI_interface){
     /*
     This function reads a data from address sent.
     it gets address as an argument send a read requests 
