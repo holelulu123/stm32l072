@@ -1,4 +1,68 @@
 #include "stm32l072xx.h"
+#include "rcc.h"
+
+
+void SetClock(RCC_Object Obj){
+    /**
+     * @brief functions sets the System clock of the STM32
+     * @param Obj is a struct that defined by the user in board_config.h and sets the
+     * wanted settings for the MCU
+     * PLL cant be turned on together with MSI
+     * 
+     *      
+     * */ 
+    
+    // Disable PLL
+    RCC->CR & ~(RCC_CR_PLLON);
+    while((RCC->CR >> RCC_CR_PLLRDY) & 0x1);
+    
+    float defaultFreq;
+    // Powering-On The main clock 
+    switch(Obj.FirstStageClockType){
+        case 0:
+            RCC->CR |= (RCC_CR_MSION);
+            while((RCC->CR >> RCC_CR_MSIRDY) & 0x1);
+            if(!Obj.PLLOn){
+                RCC->CR &= ~(RCC_CFGR_SW_Msk);
+                RCC->CR |=  (RCC_CFGR_SW_MSI);    
+                while((RCC->CR >> RCC_CFGR_SWS_Pos) & 0x3 != 0x0);
+            }
+            defaultFreq = MSI_ClockFreq;
+            break;
+        case 1:
+            RCC->CR |= (RCC_CR_HSION);
+            while((RCC->CR >> RCC_CR_HSIRDY) & 0x1);
+            if(!Obj.PLLOn){
+                RCC->CR &= ~(RCC_CFGR_SW_Msk);
+                RCC->CR |=  (RCC_CFGR_SW_HSI);
+                while((RCC->CR >> RCC_CFGR_SWS_Pos) & 0x3 != 0x1);
+            }
+            defaultFreq = HSI_ClockFreq;
+            break;
+        case 2:
+            RCC->CR |= (RCC_CR_HSEON);
+            while((RCC->CR >> RCC_CR_HSERDY) & 0x1);
+            if(!Obj.PLLOn){
+                RCC->CR &= ~(RCC_CFGR_SW_Msk);
+                RCC->CR |=  (RCC_CFGR_SW_HSE);    
+                while((RCC->CR >> RCC_CFGR_SWS_Pos) & 0x3 != 0x2);
+            }
+            defaultFreq = HSE_ClockFreq;
+            break;
+    }
+    // Sets the Primary clock as the system clock
+    if (!Obj.PLLOn){
+        return;
+    }
+    int multi   = Obj.PLLMultiplier;
+    int divider = Obj.PLLDivider;
+    
+    extern int SystemClock; 
+    
+    
+
+
+}
 
 void SetClock_HSI16(){
     /*
