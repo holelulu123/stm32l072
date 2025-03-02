@@ -68,9 +68,10 @@ typedef struct RCC_Object {
     
 }RCC_Object;
 
+extern float PLLVCO;
+extern float SystemClock;
 
-extern float SystemClcok;
-
+void SetClock(RCC_Object Obj);
 void SetClock_HSI16();
 void SetClock_HSI16_PLL();
 

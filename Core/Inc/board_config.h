@@ -2,6 +2,7 @@
 #define __BOARD_CONFIG_H
 
 #include "gpio.h"
+#include "rcc.h"
 #include "stm32l072xx.h"
 
 //  Pins Configuration
@@ -66,14 +67,14 @@ static const GPIO_Object GPIOB_5 = {
     .AF                 = AF0
 };
 
-static const RCC_Object GPIOB_5 = {
+// Initializtion of 
+static const RCC_Object Clock_Configuration = {
     .FirstStageClockType    = HSI16,
     .PLLOn                  = PLL_On,
-    .PLLMultiplier          = OutputMode,
-    .PLLDivider             = MediumSpeed,
-    .PLLSource              = NoPull,
-    .Type                   = PushPull,
-    .AF                     = AF0
+    .PLLMultiplier          = Multiplier_3,
+    .PLLDivider             = Divider_3,
+    .PLLSource              = PLL_Source_HSI16
+    
 };
 
 #endif

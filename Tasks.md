@@ -13,4 +13,5 @@
     * make sure the VOS bits in the PWR_CR register equal 10 before change
     * Reset the PWRRST bit in the RCC_APB1RSTR register
     * config PWR_CR Register VOS bits.
+    * PWR_CR Vos bits cant be changed, Check on this issue
     
