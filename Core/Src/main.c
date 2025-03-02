@@ -44,14 +44,19 @@ int main(void)
     // Configurates_SPI(SX1276_SPI);
     // SPI_WriteRegister(address ,data);
     GPIO_Init(GPIOB_5, GPIOB);
+    UART_printf("Values of VOS are: 0x%x\r\n",((PWR->CR >> 11) & 0x3));
+    while((PWR->CSR >> 4) & 0x1)
+    {
+        UART_printf("Waiting for reset");
+    };
+    PWR->CR = (PWR->CR & ~PWR_CR_VOS) | PWR_CR_VOS_0;
+    while((PWR->CSR >> 4) & 0x1);
+    
     while(1) {
         GPIO_Set(GPIOB_5, GPIOB);
-        // UART_l80_m39_ReadMessages();
-        // if (data > 0x50){data = 0;}
-        // SPI_ReadRegister(address, SX1276_SPI);
+        UART_printf("Values of VOS are: 0x%x\r\n",((PWR->CR >> 11) & 0x3));
+        
         delay_ms(10);
-        // SPI_WriteRegister(address, data, SX1276_SPI);
-        // data ++;
         GPIO_Reset(GPIOB_5, GPIOB);
         delay_ms(10);
     }

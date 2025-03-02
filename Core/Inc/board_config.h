@@ -66,4 +66,14 @@ static const GPIO_Object GPIOB_5 = {
     .AF                 = AF0
 };
 
+static const RCC_Object GPIOB_5 = {
+    .FirstStageClockType    = HSI16,
+    .PLLOn                  = PLL_On,
+    .PLLMultiplier          = OutputMode,
+    .PLLDivider             = MediumSpeed,
+    .PLLSource              = NoPull,
+    .Type                   = PushPull,
+    .AF                     = AF0
+};
+
 #endif

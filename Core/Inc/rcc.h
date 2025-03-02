@@ -1,9 +1,20 @@
 #ifndef __RCC_H
 #define __RCC_H
+#include <stdio.h>
 
-#define HSI_ClockFreq 16000000
-#define MSI_ClockFreq 2097000
-#define HSE_ClockFreq 16000000
+#define HSI_ClockFreq            16000000
+#define MSI_ClockFreq            2097000
+#define HSE_ClockFreq            16000000
+#define PLL_MAX_FREQ_RANGE_1     32000000
+#define PLL_MAX_FREQ_RANGE_2     16000000
+#define PLL_MAX_FREQ_RANGE_3     4000000
+#define VCO_MAX_FREQ_RANGE_1     96000000
+#define VCO_MAX_FREQ_RANGE_2     48000000
+#define VCO_MAX_FREQ_RANGE_3     24000000
+
+#define RANGE_1                  ((__uint8_t)0x1 << 11)
+#define RANGE_2                  ((__uint8_t)0x2 << 11)
+#define RANGE_3                  ((__uint8_t)0x3 << 11)
 
 typedef enum RCC_FirstStageClockType : __uint8_t {
     MSI             = 0x0,
@@ -39,18 +50,11 @@ typedef enum RCC_PLLDividerTag : __uint8_t {
 }RCC_PLLDivider;
 
 typedef enum RCC_PLLSourceTag : __uint8_t {
-    HSI16            = 0x0,
-    HSE              = 0x1,
+    PLL_Source_HSI16            = 0x0,
+    PLL_Source_HSE              = 0x1,
     
 }RCC_PLLSource;
 
-typedef enum RCC_SystemClockTag : __uint8_t {
-    MSI              = 0x0,
-    HSI16            = 0x1,
-    HSE              = 0x2,
-    PLL              = 0x3,
-    
-}RCC_SystemClock;
 
 /**
  * RCC Object 
@@ -65,7 +69,7 @@ typedef struct RCC_Object {
 }RCC_Object;
 
 
-extern int SystemClock;
+extern float SystemClcok;
 
 void SetClock_HSI16();
 void SetClock_HSI16_PLL();
