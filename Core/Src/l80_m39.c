@@ -148,9 +148,9 @@ void GPS_NMEA_MessageNavigator(char message[]){
     if (strcmp(message_id, NMEA_MESSAGE_ID_GPRMC) == 0){
         GPRMC_MessageParser(message);
         // The prints needs to be deleted, but used here as a test.
-        UART_printf("Time: %02d:%02d:%02d\r\n",nmea_hour, nmea_minute, nmea_second);
-        UART_printf("Latitude: %f\r\n", nmea_latitude);
-        UART_printf("Longitude is: %f\r\n", nmea_longitude);
+        UART_printf("Time         : %02d:%02d:%02d\r\n",nmea_hour, nmea_minute, nmea_second);
+        UART_printf("Latitude     : %f\r\n", nmea_latitude);
+        UART_printf("Longitude is : %f\r\n", nmea_longitude);
     }
     
 

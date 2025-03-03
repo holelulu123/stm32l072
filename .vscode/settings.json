@@ -20,7 +20,8 @@
         "typeinfo": "c",
         "stdlib.h": "c",
         "format": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "cstddef": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

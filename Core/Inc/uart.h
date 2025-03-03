@@ -1,16 +1,14 @@
 #ifndef __UART_H
 #define __UART_H
 
+#include <stdio.h>
 #include "stm32l072xx.h"
 #include "gpio.h"
-// Defining Buffer size
-#define NMEA_MESSAGE_SIZE   (100)
-#define Starting_Packet     (0x24)
-#define Ending_packet       (0x0d)
 
+#define MAX_MESSAGE_SIZE 128
 
 extern int USART_DIV;
-extern char nmea_message[NMEA_MESSAGE_SIZE]; 
+// extern char nmea_message[NMEA_MESSAGE_SIZE]; 
 
 typedef enum USART_BaudRateTag : int {
      BuadRate_1 = 2400,
@@ -40,37 +38,52 @@ typedef enum USART_NumberTag : __uint8_t {
 
 }USART_Number;
 
+typedef enum CommunicationDirectionTag : __uint8_t {
+    Transmitter     = 0x0, 
+    Receiver        = 0x1, 
+    Transceiver     = 0x2  
+
+}CommunicationDirection;
 
 
-typedef struct UART_Configuration {
-    GPIO_Object     TX;
-    GPIO_Object     RX;
-    USART_TypeDef   *USART_Object;
-    USART_BaudRate  BaudRate;
-    USART_Over8     OverSampling;
-    USART_Number    USARTx;
+typedef struct UART_Object {
+    GPIO_Object                 TX;
+    GPIO_Object                 RX;
+    USART_TypeDef               *UART_Struct;
+    USART_BaudRate              BaudRate;
+    USART_Over8                 OverSampling;
+    USART_Number                USARTx;
+    CommunicationDirectionTag   Direction;
 
-} UART_Configuration;
+} UART_Object;
 
 
-static const UART_Configuration USART_Debug = {
-    .TX                         = GPIOA_2, // Change to GPIOA_2
+static const UART_Object UART_Debug = {
+    .TX                         = GPIOA_2, 
     .RX                         = GPIOA_3,
-    .USART_Object               = USART2,
+    .UART_Struct                = USART2,
     .BaudRate                   = BuadRate_2,
     .OverSampling               = OverSampling_16,
-    .USARTx                     = USART_2
+    .USARTx                     = USART_2,
+    .Direction                  = Transceiver
+};
+
+static const UART_Object UART_L80 = {
+    .TX                         = GPIOA_9, 
+    .RX                         = GPIOA_10,
+    .UART_Struct                = USART1,
+    .BaudRate                   = BuadRate_2,
+    .OverSampling               = OverSampling_16,
+    .USARTx                     = USART_1,
+    .Direction                  = Transceiver
 };
 
 
-void UART_SetRegisters(UART_Configuration Obj);
-// Functions for UART logs and debugging. 
-void UART_debug_set_registers(int clock_rate, int baud_rate);
-void UART_debug_sendMessage(char message[]);
-void UART_printf(const char *format, ...);
-// Function for UART for Reading NMEA GPS messages.
+void  UART_SetRegisters(UART_Object Obj);
+void  UART_Write(UART_Object Obj);
+char* UART_Read(UART_Object Obj, char start_sign, char end_sign);
+void  UART_printf(const char *format, ...);
 
-void UART_l80_m39_set_registers(int clock_rate, int baud_rate);
 void UART_l80_m39_ReadMessages();
 
 #endif

@@ -2,6 +2,9 @@
 #define __L80_M39
 #include <stdio.h>
 
+#define STARTING_PACKET_SIGN  '$'
+#define ENDING_PACKET_SIGN    '\r'
+
 #define NMEA_MESSAGE_ID_GPRMC "$GPRMC"
 #define NMEA_MESSAGE_ID_GPVTG "$GPVTG"
 #define NMEA_MESSAGE_ID_GPGGA "$GPGGA"

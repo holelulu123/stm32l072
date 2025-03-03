@@ -60,7 +60,6 @@ void GPRMC_MessageParser(char message[]){
        else if (*ptr == NMEA_MESSAGE_FINISH_SIGN){
            temp[index] = '\0';
            index = 0;
-           printf("word number %d is: %s\n",fields ,temp);
            fields++;    
            checksum = temp_check;
        }

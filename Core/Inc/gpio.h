@@ -107,6 +107,12 @@ typedef struct GPIO_Object {
 
 }GPIO_Object;
 
+
+
+
+/**
+ * GPIOB - 8 declaration of GPIO Object
+ */
 static const GPIO_Object GPIOB_5 = {
     .PinNumber          = GPIO_PIN_5,
     .Name               = GPIO_B,
@@ -117,7 +123,9 @@ static const GPIO_Object GPIOB_5 = {
     .AF                 = AF0,
     .GPIOP              = GPIOB
 };
-
+/**
+ * GPIOA - 2 declaration of GPIO Object
+ */
 static const GPIO_Object GPIOA_2 = {
     .PinNumber          = GPIO_PIN_2,
     .Name               = GPIO_A,
@@ -129,8 +137,40 @@ static const GPIO_Object GPIOA_2 = {
     .GPIOP              = GPIOA
 };
 
+/**
+ * GPIOA - 3 declaration of GPIO Object
+ */
 static const GPIO_Object GPIOA_3 = {
     .PinNumber          = GPIO_PIN_3,
+    .Name               = GPIO_A,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF4,
+    .GPIOP              = GPIOA
+};
+
+/**
+ * GPIOA - 9 declaration of GPIO Object
+ */
+static const GPIO_Object GPIOA_9 = {
+    .PinNumber          = GPIO_PIN_9,
+    .Name               = GPIO_A,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF4,
+    .GPIOP              = GPIOA
+};
+
+/**
+ * GPIOA - 10 declaration of GPIO Object
+ */
+
+static const GPIO_Object GPIOA_10 = {
+    .PinNumber          = GPIO_PIN_10,
     .Name               = GPIO_A,
     .Mode               = AlternateMode,
     .Speed              = HighSpeed,

@@ -39,23 +39,14 @@ void GPIO_Init(GPIO_Object Obj){
     Obj.GPIOP->MODER   &= ~(0x3 << Obj.PinNumber * 2);
     Obj.GPIOP->MODER   |=  (Obj.Mode << Obj.PinNumber * 2);
     
-    switch (Obj.PinNumber) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-            Obj.GPIOP->AFR[0] &= ~(0x7 << Obj.PinNumber * 4); 
-            Obj.GPIOP->AFR[0] |=  (Obj.AF << Obj.PinNumber * 4); 
-            break;
-        default:
-            Obj.GPIOP->AFR[1] &= ~(0x7 << (Obj.PinNumber - 8) * 4); 
-            Obj.GPIOP->AFR[1] |=  (Obj.AF << (Obj.PinNumber - 8) * 4); 
-            break;
-    }    
+    if (Obj.PinNumber >= 0 && Obj.PinNumber <= 7){ 
+        Obj.GPIOP->AFR[0] &= ~(0x7 << Obj.PinNumber * 4); 
+        Obj.GPIOP->AFR[0] |=  (Obj.AF << Obj.PinNumber * 4); 
+    }
+    else{        
+        Obj.GPIOP->AFR[1] &= ~(0x7 << (Obj.PinNumber - 8) * 4); 
+        Obj.GPIOP->AFR[1] |=  (Obj.AF << (Obj.PinNumber - 8) * 4); 
+    }
 
     // GPIO PullUp - PullDown
     Obj.GPIOP->PUPDR   &= ~(0x3 << Obj.PinNumber * 2);
