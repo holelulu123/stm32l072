@@ -3,7 +3,7 @@
 #include "gpio.h"
 #include "uart.h"
 
-void GPIO_Init(GPIO_Object Obj, GPIO_TypeDef *GPIO){
+void GPIO_Init(GPIO_Object Obj){
    /** 
     * @brief Initiate a specific GPIO
     * 
@@ -36,22 +36,9 @@ void GPIO_Init(GPIO_Object Obj, GPIO_TypeDef *GPIO){
     }
 
     // GPIO Mode Configuration
-    GPIO->MODER   &= ~(0x3 << Obj.PinNumber * 2);
-    GPIO->MODER   |=  (Obj.Mode << Obj.PinNumber * 2);
+    Obj.GPIOP->MODER   &= ~(0x3 << Obj.PinNumber * 2);
+    Obj.GPIOP->MODER   |=  (Obj.Mode << Obj.PinNumber * 2);
     
-    // GPIO Output Speed Configuration
-    GPIO->OSPEEDR &= ~(0x3 << Obj.PinNumber * 2);
-    GPIO->OSPEEDR |=  (Obj.Speed << Obj.PinNumber * 2);
-    
-    // GPIO PullUp - PullDown
-    GPIO->PUPDR   &= ~(0x3 << Obj.PinNumber * 2);
-    GPIO->PUPDR   |=  (Obj.Pupr << Obj.PinNumber * 2);
-    
-    // GPIO Output Type
-    GPIO->OTYPER  &= ~(0x1 << Obj.PinNumber);
-    if (Obj.Type & 0x1) {
-        GPIO->OTYPER  |= (0x1 << Obj.PinNumber);
-    }
     switch (Obj.PinNumber) {
         case 0:
         case 1:
@@ -61,39 +48,52 @@ void GPIO_Init(GPIO_Object Obj, GPIO_TypeDef *GPIO){
         case 5:
         case 6:
         case 7:
-            GPIO->AFR[0] &= ~(0x7 << Obj.PinNumber * 4); 
-            GPIO->AFR[0] |=  (Obj.AF << Obj.PinNumber * 4); 
+            Obj.GPIOP->AFR[0] &= ~(0x7 << Obj.PinNumber * 4); 
+            Obj.GPIOP->AFR[0] |=  (Obj.AF << Obj.PinNumber * 4); 
             break;
         default:
-            GPIO->AFR[1] &= ~(0x7 << (Obj.PinNumber - 8) * 4); 
-            GPIO->AFR[1] |=  (Obj.AF << (Obj.PinNumber - 8) * 4); 
+            Obj.GPIOP->AFR[1] &= ~(0x7 << (Obj.PinNumber - 8) * 4); 
+            Obj.GPIOP->AFR[1] |=  (Obj.AF << (Obj.PinNumber - 8) * 4); 
             break;
     }    
+
+    // GPIO PullUp - PullDown
+    Obj.GPIOP->PUPDR   &= ~(0x3 << Obj.PinNumber * 2);
+    Obj.GPIOP->PUPDR   |=  (Obj.Pupr << Obj.PinNumber * 2);
+    
+    // GPIO Output Type
+    Obj.GPIOP->OTYPER  &= ~(0x1 << Obj.PinNumber);
+    Obj.GPIOP->OTYPER  |=  (Obj.Type << Obj.PinNumber);
+    
+    // GPIO Output Speed Configuration
+    Obj.GPIOP->OSPEEDR &= ~(0x3 << Obj.PinNumber * 2);
+    Obj.GPIOP->OSPEEDR |=  (Obj.Speed << Obj.PinNumber * 2);
+
 }
 
-void GPIO_Set(GPIO_Object Obj, GPIO_TypeDef *GPIO){
+void GPIO_Set(GPIO_Object Obj){
     /**
     * @brief Sets the GPIO to output digital high
     * Works only if the GPIO is set as output
     * 
     **/     
-    GPIO->ODR |= (0x1 << Obj.PinNumber); 
+    Obj.GPIOP->ODR |= (0x1 << Obj.PinNumber); 
 }
 
-void GPIO_Reset(GPIO_Object Obj, GPIO_TypeDef *GPIO){
+void GPIO_Reset(GPIO_Object Obj){
     /**
      * @brief Resets the GPIO to output digital Low
      * Works only if the GPIO is set as output
      * */    
-    GPIO->ODR &= ~(0x1 << Obj.PinNumber); 
+    Obj.GPIOP->ODR &= ~(0x1 << Obj.PinNumber); 
 
 }
 
-__uint8_t GPIO_Read(GPIO_Object Obj, GPIO_TypeDef *GPIO){
+__uint8_t GPIO_Read(GPIO_Object Obj){
     /**
      * @brief Reads the GPIO digital value
      * works only if GPIO is set to be Input.
      * Returns the value of the GPIO Pin.
      */
-    return ((GPIO->IDR >> Obj.PinNumber) & 0x1);
+    return ((Obj.GPIOP->IDR >> Obj.PinNumber) & 0x1);
 }

@@ -68,11 +68,19 @@ typedef struct RCC_Object {
     
 }RCC_Object;
 
+static const RCC_Object Clock_Configuration = {
+    .FirstStageClockType    = HSI16,
+    .PLLOn                  = PLL_On,
+    .PLLMultiplier          = Multiplier_3,
+    .PLLDivider             = Divider_3,
+    .PLLSource              = PLL_Source_HSI16
+    
+};
+
 extern float PLLVCO;
 extern float SystemClock;
 
 void SetClock(RCC_Object Obj);
-void SetClock_HSI16();
-void SetClock_HSI16_PLL();
+
 
 #endif

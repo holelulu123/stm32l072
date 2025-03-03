@@ -7,6 +7,8 @@
  * changes the mode of the GPIO Pin for either reception or 
  * transmission of data, or either analog. 
  */
+
+
 typedef enum GPIOPinNumberTag : __uint8_t {
     GPIO_PIN_0      = 0x0,
     GPIO_PIN_1      = 0x1,
@@ -101,16 +103,49 @@ typedef struct GPIO_Object {
     GPIOPinPUPR             Pupr;
     GPIOPinType             Type;
     GPIOAlternateFunction   AF;  
+    GPIO_TypeDef            *GPIOP;
 
 }GPIO_Object;
 
+static const GPIO_Object GPIOB_5 = {
+    .PinNumber          = GPIO_PIN_5,
+    .Name               = GPIO_B,
+    .Mode               = OutputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = NoPull,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOB
+};
+
+static const GPIO_Object GPIOA_2 = {
+    .PinNumber          = GPIO_PIN_2,
+    .Name               = GPIO_A,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF4,
+    .GPIOP              = GPIOA
+};
+
+static const GPIO_Object GPIOA_3 = {
+    .PinNumber          = GPIO_PIN_3,
+    .Name               = GPIO_A,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF4,
+    .GPIOP              = GPIOA
+};
 
 /**
  * GPIOs Basic Functions
  */
-void      GPIO_Init (GPIO_Object Obj, GPIO_TypeDef *GPIO);
-void      GPIO_Set  (GPIO_Object Obj, GPIO_TypeDef *GPIO);
-void      GPIO_Reset(GPIO_Object Obj, GPIO_TypeDef *GPIO);
-__uint8_t GPIO_Read (GPIO_Object Obj, GPIO_TypeDef *GPIO);
+void      GPIO_Init (GPIO_Object Obj);
+void      GPIO_Set  (GPIO_Object Obj);
+void      GPIO_Reset(GPIO_Object Obj);
+__uint8_t GPIO_Read (GPIO_Object Obj);
 
 #endif

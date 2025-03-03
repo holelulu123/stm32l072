@@ -57,24 +57,7 @@
 #define Debugger_UART_RX_PIN        3
 
 
-static const GPIO_Object GPIOB_5 = {
-    .PinNumber          = GPIO_PIN_5,
-    .Name               = GPIO_B,
-    .Mode               = OutputMode,
-    .Speed              = MediumSpeed,
-    .Pupr               = NoPull,
-    .Type               = PushPull,
-    .AF                 = AF0
-};
-
 // Initializtion of 
-static const RCC_Object Clock_Configuration = {
-    .FirstStageClockType    = HSI16,
-    .PLLOn                  = PLL_On,
-    .PLLMultiplier          = Multiplier_3,
-    .PLLDivider             = Divider_3,
-    .PLLSource              = PLL_Source_HSI16
-    
-};
+
 
 #endif

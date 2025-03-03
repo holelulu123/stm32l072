@@ -3,9 +3,65 @@
 #include <string.h>
 #include <stdarg.h>
 #include "stm32l072xx.h"
+#include "rcc.h"
+#include "gpio.h"
 #include "uart.h"
 #include "l80_m39.h"
 
+int USART_DIV = 0;
+
+void UART_SetRegisters(UART_Configuration Obj){
+    /**
+     * @brief This function sets the registers of the uart object and 
+     * sets regisetrs of TX & RX GPIOs.
+     */
+    
+    // Turning on the Clock of USARTx
+    
+    Obj.USART_Object->CR1 &= ~(USART_CR1_UE);
+    switch(Obj.USARTx){
+        case 0:
+            RCC->APB2ENR |= (RCC_APB2ENR_USART1EN);
+            // RCC->CCIPR   |= (RCC_CCIPR_USART1SEL_0);
+            break;
+        case 1:
+            RCC->APB1ENR |= (RCC_APB1ENR_USART2EN);
+            // RCC->CCIPR   |= (RCC_CCIPR_USART2SEL_0);
+            break;
+        case 2:
+            break;
+        case 3:
+            RCC->APB1ENR |= (RCC_APB1ENR_USART4EN);
+            break;
+        case 4:
+            RCC->APB1ENR |= (RCC_APB1ENR_USART5EN);
+            break;
+    }
+    GPIO_Init(Obj.TX);
+    GPIO_Init(Obj.RX);
+    
+    RCC->CCIPR            |=  (RCC_CCIPR_USART2SEL_0);
+    // Obj.USART_Object->CR1 &= ~(USART_CR1_OVER8_Msk);
+    // Obj.USART_Object->CR1 |=  (Obj.OverSampling << USART_CR1_OVER8_Pos);
+
+    // If OVER8 is equal 1 -> oversampling by 8
+    int USART_DIV;
+    if (Obj.OverSampling){
+        USART_DIV = (2 * SystemClock) / Obj.BaudRate;
+        Obj.USART_Object->BRR &= ~(0xFFFF << 0); // Clear the USARTDIV
+        Obj.USART_Object->BRR |= (USART_DIV << 4); // Set the desired baud rate
+        Obj.USART_Object->BRR |= ((USART_DIV & 0xF) >> 1); // Set the desired baud rate
+    } 
+    // if OVER8 is equal 0 -> oversampling by 16 
+    else {
+        USART_DIV = SystemClock / Obj.BaudRate;
+        Obj.USART_Object->BRR &= ~(0xFFFF << 0); // Clear the USARTDIV
+        Obj.USART_Object->BRR |= (USART_DIV); // Set the desired baud rate
+
+    }
+    Obj.USART_Object->CR1 |= (USART_CR1_TE); // Enable the Transmission
+    Obj.USART_Object->CR1 |= (USART_CR1_UE); // Enable the USART
+}
 
 void UART_debug_set_registers(int clock_rate, int baud_rate){
     /*
