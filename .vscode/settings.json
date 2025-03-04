@@ -21,7 +21,12 @@
         "stdlib.h": "c",
         "format": "c",
         "type_traits": "c",
-        "cstddef": "c"
+        "cstddef": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "span": "c",
+        "sx_1276.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

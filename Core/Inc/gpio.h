@@ -180,6 +180,62 @@ static const GPIO_Object GPIOA_10 = {
     .GPIOP              = GPIOA
 };
 
+static const GPIO_Object SPI_MOSI_SX1276 = {
+    .PinNumber          = GPIO_PIN_7,
+    .Name               = GPIO_A,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullDown,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOA
+};
+
+static const GPIO_Object SPI_MISO_SX1276 = {
+    .PinNumber          = GPIO_PIN_6,
+    .Name               = GPIO_A,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullDown,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOA
+};
+
+static const GPIO_Object SPI_SCLK_SX1276 = {
+    .PinNumber          = GPIO_PIN_3,
+    .Name               = GPIO_B,
+    .Mode               = AlternateMode,
+    .Speed              = HighSpeed,
+    .Pupr               = PullDown,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOB
+};
+
+
+static const GPIO_Object SPI_NSS_SX1276 = {
+    .PinNumber          = GPIO_PIN_15,
+    .Name               = GPIO_A,
+    .Mode               = OutputMode,
+    .Speed              = HighSpeed,
+    .Pupr               = NoPull,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOA
+};
+
+static const GPIO_Object TCXO_SX1276 = {
+    .PinNumber          = GPIO_PIN_12,
+    .Name               = GPIO_A,
+    .Mode               = OutputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOA
+};
+
 /**
  * GPIOs Basic Functions
  */

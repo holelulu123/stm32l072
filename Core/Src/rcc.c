@@ -36,7 +36,6 @@ void SetClock(RCC_Object Obj){
             RCC->CR |= (RCC_CR_HSION);
             while(!((RCC->CR >> RCC_CR_HSIRDY_Pos) & 0x1));
             if(!Obj.PLLOn){
-                // UART_printf("im here\r\n");
                 RCC->CFGR &= ~(RCC_CFGR_SW_Msk);
                 RCC->CFGR |=  (RCC_CFGR_SW_HSI);
                 while(((RCC->CFGR >> RCC_CFGR_SWS_Pos) & 0x3) != 0x1);

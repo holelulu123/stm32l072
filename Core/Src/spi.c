@@ -1,91 +1,90 @@
 #include <stdio.h>
 #include "stm32l072xx.h"
-#include "board_config.h"
+#include "gpio.h"
 #include "spi.h"
-#include "uart.h"
-#include "sx_1276.h"
 
-
-void Configurates_SPI(SPI_TypeDef *SPI_interface){
-    /*
-
-    This function sets the registers for SPI1 communication
-    for half-duplex.
-    */
+void SPI_SetRegisters(SPI_Object Obj){
+    /**
+     * @brief This functions Sets the registers of SPI,
+     * Initilizes the communication by the configuration of Obj
+     * @param SPI_Object is a struct that consists on all the SPI 
+     * configuration and GPIOS for communication
+     */
+    switch (Obj.SPIx) {
+        case 0:
+            RCC->APB2ENR |= (RCC_APB2ENR_SPI1EN);
+            break;
+        case 1:
+            RCC->APB1ENR |= (RCC_APB1ENR_SPI2EN);
+            break;
+    }
+    GPIO_Init(Obj.MISO);
+    GPIO_Init(Obj.MOSI);
+    GPIO_Init(Obj.NSS);
+    GPIO_Init(Obj.SCLK);
     
-    // Enable Clock for SPI1, GPIOA and GPIOB
-    RCC->APB2ENR |= (RCC_APB2ENR_SPI1EN); // Enable the SPI1 Clock
-    RCC->IOPENR |= (RCC_IOPENR_GPIOAEN); // Enable the Clock of GPIO A
-    RCC->IOPENR |= (RCC_IOPENR_GPIOBEN); // Enable the Clock of GPIO B
+    GPIO_Set(Obj.NSS);
+    // For now lets not enable TCXO and lets see the effect.
+    switch (Obj.SSM) {
+        case 0:
+            Obj.SPI_Struct->CR1 &= ~(SPI_CR1_SSM);
+            break;
+        case 1:
+            Obj.SPI_Struct->CR1 |=  (SPI_CR1_SSM);
+            if (Obj.SSI){
+                Obj.SPI_Struct->CR1 |=  (SPI_CR1_SSI);
+            }
+    }
+    // Data Frame Format
+    Obj.SPI_Struct->CR1 &= ~(SPI_CR1_DFF); 
+    Obj.SPI_Struct->CR1 |=  (Obj.DFF << SPI_CR1_DFF_Pos); 
     
-    // GPIO CONFIGURATION 
-    MISO_GPIO->MODER &= ~(0x3 << MISO_PIN * 2); // Clear MODER Register 
-    MOSI_GPIO->MODER &= ~(0x3 << MOSI_PIN * 2); // Clear MODER Register 
-    NSS_GPIO->MODER &= ~(0x3 << NSS_PIN * 2); // Clear MODER Register 
-    SCLK_GPIO->MODER &= ~(0x3 << SCLK_PIN * 2); // Clear MODER Register 
+    // Clock Polarity
+    Obj.SPI_Struct->CR1 &= ~(SPI_CR1_CPOL); 
+    Obj.SPI_Struct->CR1 |=  (Obj.CPOL << SPI_CR1_CPOL_Pos); 
     
-    MISO_GPIO->MODER |= (0x2 << MISO_PIN * 2); // Select MISO for Altenrate function
-    MOSI_GPIO->MODER |= (0x2 << MOSI_PIN * 2); // Select MOSI for Altenrate function
-    NSS_GPIO->MODER |= (0x1 << NSS_PIN * 2); // Select NSS for output mode
-    SCLK_GPIO->MODER |= (0x2 << SCLK_PIN * 2); // Select SCLK for Altenrate function
-    
-    // GPIOA->AFR[1] |= (0x0 << (GPIOA_TCXO_POWER - 8) * 4); // Select PA12 for normal GPIO -> Needs to change Here!
-    MISO_GPIO->AFR[0] &= ~(0xF << MISO_PIN * 4); // Select PA6 for MISO (AFSEL 0)
-    MOSI_GPIO->AFR[0] &= ~(0xF << MOSI_PIN * 4); // Select PA7 for MOSI (AFSEL 0) 
-    NSS_GPIO->AFR[1] &= ~(0xF << (NSS_PIN - 8) * 4); // Select PA15 for NSS (AFSEL 0)
-    SCLK_GPIO->AFR[0] &= ~(0xF << SCLK_PIN * 4); // Select PB3 for PSCLK (AFSEL 0)
+    // Clock Phase
+    Obj.SPI_Struct->CR1 &= ~(SPI_CR1_CPHA); 
+    Obj.SPI_Struct->CR1 |=  (Obj.CPHA << SPI_CR1_CPHA_Pos); 
 
-    // GPIOA->PUPDR &= ~(0x3 << GPIOA_TCXO_POWER); // Resets value for PA12 
-    // GPIOA->PUPDR |= (0x1 << GPIOA_TCXO_POWER); // Select pull-up for PA12
-    MISO_GPIO->PUPDR |= (0x0 << MISO_PIN * 2); // Select Pull-down for PA6
-    MOSI_GPIO->PUPDR |= (0x0 << MOSI_PIN * 2); // Select Pull-down for PA7
-    NSS_GPIO->PUPDR &= ~(0x3 << NSS_PIN * 2); // Select no-pull for PA15
-    SCLK_GPIO->PUPDR |= (0x0 << SCLK_PIN * 2); // Select pull-down for PB3
+    // Master Selection
+    Obj.SPI_Struct->CR1 &= ~(SPI_CR1_MSTR);
+    Obj.SPI_Struct->CR1 |=  (Obj.MasterSel << SPI_CR1_MSTR_Pos);    
 
-    // GPIOA->OTYPER &= ~(GPIO_OTYPER_OT_12); // Select push-pull for PA12
-    MISO_GPIO->OTYPER &= ~(GPIO_OTYPER_OT_6); // Select push-pull for PA6
-    MOSI_GPIO->OTYPER &= ~(GPIO_OTYPER_OT_7); // Select push-pull for PA7
-    NSS_GPIO->OTYPER &= ~(GPIO_OTYPER_OT_15); // Select push-pull for PA15
-    SCLK_GPIO->OTYPER &= ~(GPIO_OTYPER_OT_3); // Select push-pull for PB3
-
-    MISO_GPIO->OSPEEDR |= (0x2 << MISO_PIN * 2); // Select Output speed of High speed for PA5
-    MOSI_GPIO->OSPEEDR |= (0x2 << MOSI_PIN * 2); // Select Output speed of High speed for PA4
-    NSS_GPIO->OSPEEDR |= (0x2 << NSS_PIN * 2); // Select Output speed of High speed for PA6
-    SCLK_GPIO->OSPEEDR |= (0x2 << SCLK_PIN * 2); // Select Output speed of High speed for PA7
-
-    NSS_GPIO->BSRR = GPIO_BSRR_BS_15; // Setting NSS High
+    /** 
+     *  SPI / I2S selection -> We make hard coded SPI Choosen
+     * Because this function is only for settings register of SPI.
+     * I2S Registers Configuration would be on a different function.
+     */ 
+    Obj.SPI_Struct->I2SCFGR &= ~(SPI_I2SCFGR_I2SMOD);
     
-    // Enabling TCXO POWER
-    TCXO_POWER_GPIO->ODR |= (0x1 << TCXO_POWER_PIN); // Outputs 1 through the PA12
+    // SPI Baud Rate Selection
+    Obj.SPI_Struct->CR1 &= ~(SPI_CR1_BR_Msk);
+    Obj.SPI_Struct->CR1 |=  (Obj.baudRate << SPI_CR1_BR_Pos);
     
-    // SPI CONFIGURATION
-    SPI_interface->CR1 |= (SPI_CR1_SSI | SPI_CR1_SSM);
-    SPI_interface->CR1 &= ~(SPI_CR1_DFF | SPI_CR1_CPOL | SPI_CR1_CPHA); // Clears the data frame format to 0, make it 8-bit frame, and clock polarity and clock phase to 0.
-    SPI_interface->CR1 |= (SPI_CR1_MSTR);// | SPI_CR1_SSM); // Sets the MCU to the master, sets software salve managment enabled.
-    SPI_interface->I2SCFGR &= ~(SPI_I2SCFGR_I2SMOD); // SPI Mode is selected
-    SPI_interface->CR1 |= (0x3 << SPI_CR1_BR_Pos); // Sets the SPI Baud rate to Fpclk / 16 = 1 MHz
-    SPI_interface->CR2 |= (SPI_CR2_SSOE);
-    SPI_interface->CR1 |= (SPI_CR1_SPE_Msk); // Enables SPI
+    Obj.SPI_Struct->CR2 |=  (SPI_CR2_SSOE);
+    Obj.SPI_Struct->CR1 |=  (SPI_CR1_SPE);
+    
 }
 
-void SPI_WriteRegister(__uint8_t address, __uint8_t data, SPI_TypeDef *SPI_interface){
+void SPI_WriteRegister(__uint8_t address, __uint8_t data, SPI_Object Obj){
     /*
     This function writes a data (8 bit) to a register
     */
-    address |= (0x1 << 7); // Adds 1 to the MSB of the address to represent a write operation
+    address |= WriteConst; // Adds 1 to the MSB of the address to represent a write operation
     __uint8_t word[2] = {address, data}; 
     __uint8_t temp;
-    NSS_GPIO->BSRR = GPIO_BSRR_BR_15;
+    GPIO_Reset(Obj.NSS);
     for(int i = 0; i < sizeof(word); i++){
-        while(!(SPI_interface->SR & SPI_SR_TXE)); 
-        SPI_interface->DR = word[i];
-        while(!(SPI_interface->SR & SPI_SR_RXNE));
-        temp = SPI_interface->DR;
+        while(!(Obj.SPI_Struct->SR & SPI_SR_TXE)); 
+        Obj.SPI_Struct->DR = word[i];
+        while(!(Obj.SPI_Struct->SR & SPI_SR_RXNE));
+        temp = Obj.SPI_Struct->DR;
     } 
-    NSS_GPIO->BSRR = GPIO_BSRR_BS_15;
+    GPIO_Set(Obj.NSS);
 }
 
-__uint8_t SPI_ReadRegister(__uint8_t address, SPI_TypeDef *SPI_interface){
+__uint8_t SPI_ReadRegister(__uint8_t address, SPI_Object Obj){
     /*
     This function reads a data from address sent.
     it gets address as an argument send a read requests 
@@ -93,18 +92,17 @@ __uint8_t SPI_ReadRegister(__uint8_t address, SPI_TypeDef *SPI_interface){
     at the time.
     
     */
-
-    // Needs to make NSS low when starting a write sequence
     __uint8_t temp;
-    __uint8_t data[2] = {address & 0x7F, 0x0}; // Creates a data and dummy to let the NSS stays and Sclk to continue transfering clock
-    NSS_GPIO->BSRR = GPIO_BSRR_BR_15;
+    __uint8_t data[2] = {address & ReadConst, 0x0}; // Creates a data and dummy to let the NSS stays and Sclk to continue transfering clock
+    GPIO_Reset(Obj.NSS);
     // Transmit operation
     for (int i = 0; i < sizeof(data); i++){
-        SPI_interface->DR = data[i]; // Write char (8 bit) to the TX Buffer (8b-dataframe).
-        while(!(SPI_interface->SR & SPI_SR_TXE)); 
-        while(!(SPI_interface->SR & SPI_SR_RXNE)); // wait in a while loop until the busy flag is cleared by HW. 
-        temp = SPI_interface->DR;
+        Obj.SPI_Struct->DR = data[i]; // Write char (8 bit) to the TX Buffer (8b-dataframe).
+        while(!(Obj.SPI_Struct->SR & SPI_SR_TXE)); 
+        while(!(Obj.SPI_Struct->SR & SPI_SR_RXNE)); // wait in a while loop until the busy flag is cleared by HW. 
+        temp = Obj.SPI_Struct->DR;
     }
-    NSS_GPIO->BSRR = GPIO_BSRR_BS_15;
+    GPIO_Set(Obj.NSS);
     return temp;
+
 }

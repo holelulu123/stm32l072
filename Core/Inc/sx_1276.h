@@ -2,6 +2,7 @@
 #define __SX_1276_H
 #include <stdio.h>
 
+
 // Registers Map
 #define RegFifo                        ((__uint8_t)0x00) 
 #define RegOpMode                      ((__uint8_t)0x01)
