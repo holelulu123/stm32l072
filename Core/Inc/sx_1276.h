@@ -1,7 +1,13 @@
 #ifndef __SX_1276_H
 #define __SX_1276_H
 #include <stdio.h>
+#include "spi.h"
+#include "gpio.h"
 
+#define ZeroByte                       ((__uint8_t)0x00)
+#define FXOSC                          32000000
+#define CONST_2_19                     524288
+#define FSTEP                          (FXOSC / CONST_2_19)
 
 // Registers Map
 #define RegFifo                        ((__uint8_t)0x00) 
@@ -64,67 +70,111 @@
 #define RegAgcThresh3                  ((__uint8_t)0x64)
 #define RegPll                         ((__uint8_t)0x70)
 
-/*
-Common Settings for the SX1276
-*/
-#define LORA_Mode                      ((__uint8_t)0x1 << 7)
-#define Modulation_Scheme_OOK          ((__uint8_t)0x1 << 5)
-#define Low_Frequnecy_Mode_On          ((__uint8_t)0x1 << 3)
-#define Transceiver_Mode_Msk           ((__uint8_t)0x7 << 0)
-#define Transceiver_Mode_Stdby         ((__uint8_t)0x1 << 0)
-#define Transceiver_Mode_FS_TX         ((__uint8_t)0x1 << 1)
-#define Transceiver_Mode_Transmitter   ((__uint8_t)0x3 << 0)
-#define Transceiver_Mode_FS_RX         ((__uint8_t)0x1 << 2)
-#define Transceiver_Mode_Receiver      ((__uint8_t)0x5 << 0)
+/**
+ * Common Settings for the SX1276
+ */
 
-/*
-RF blocks settings for the SX1276
-*/
-#define PA_Boost_ON                    ((__uint8_t)0x1 << 0)
-#define Overload_current_protection_on ((__uint8_t)0x1 << 5)
+#define RegOpMode_LongRangeMode        ((__uint8_t)0x1 << 7)
+#define RegOpMode_AccessSharedReg      ((__uint8_t)0x1 << 6)
+#define RegOpMode_LowFrequnecyModeOn   ((__uint8_t)0x1 << 3)
+#define RegOpMode_Mode_Sleep           ((__uint8_t)0x0 << 0)     
+#define RegOpMode_Mode_Stdby           ((__uint8_t)0x1 << 0)
+#define RegOpMode_Mode_FSTX            ((__uint8_t)0x2 << 0)
+#define RegOpMode_Mode_TX              ((__uint8_t)0x3 << 0)
+#define RegOpMode_Mode_FSRX            ((__uint8_t)0x4 << 0)
+#define RegOpMode_Mode_RXContinoues    ((__uint8_t)0x5 << 0)
+#define RegOpMode_Mode_RXSingle        ((__uint8_t)0x6 << 0)
+#define RegOpMode_Mode_CAD             ((__uint8_t)0x7 << 0)
+#define RegOpMode_Mode_Msk             ((__uint8_t)0x7 << 0)
 
-#define LNA_Gain_G1                    ((__uint8_t)0x1 << 5)
-#define LNA_Gain_G2                    ((__uint8_t)0x2 << 5)
-#define LNA_Gain_G3                    ((__uint8_t)0x3 << 5)
-#define LNA_Gain_G4                    ((__uint8_t)0x4 << 5)
-#define LNA_Gain_G5                    ((__uint8_t)0x5 << 5)
-#define LNA_Gain_G6                    ((__uint8_t)0x6 << 5)
-#define RFI_HF_LNA_Current_adj         ((__uint8_t)0x3 << 0)
-// #define RFI_HF_LNA_Current_adj         ((__uint8_t)0x3 << 3) CHECK ON THIS !!!!!!!
-#define ImplicitHeaderModeOn           ((__uint8_t)0x1 << 0)
+/**
+ * Registers for RF Blocks
+ */
 
-typedef enum {
-    LORA_BW_007                      = ((__uint8_t)0x0 << 4),   
-    LORA_BW_010                      = ((__uint8_t)0x1 << 4),
-    LORA_BW_015                      = ((__uint8_t)0x2 << 4),
-    LORA_BW_020                      = ((__uint8_t)0x3 << 4),
-    LORA_BW_031                      = ((__uint8_t)0x4 << 4),
-    LORA_BW_041                      = ((__uint8_t)0x5 << 4),
-    LORA_BW_062                      = ((__uint8_t)0x6 << 4),
-    LORA_BW_125                      = ((__uint8_t)0x7 << 4),
-    LORA_BW_250                      = ((__uint8_t)0x8 << 4),
-    LORA_BW_500                      = ((__uint8_t)0x9 << 4),
-}LoraBandWidth;
- 
-typedef enum {
-    LORA_CR_4_5                      = ((__uint8_t)0x1 << 1),
-    LORA_CR_4_6                      = ((__uint8_t)0x2 << 1),
-    LORA_CR_4_7                      = ((__uint8_t)0x3 << 1),
-    LORA_CR_4_8                      = ((__uint8_t)0x4 << 1),
-}LoraCodingRates;
+#define RegPaConfig_PaSelect           ((__uint8_t)0x1 << 7)
+#define RegPaConfig_MaxPower_Pos       ((__uint8_t)4)
+#define RegPaConfig_OutputPower_Pos    ((__uint8_t)0)
+#define RegPaRamp_OutputPower_Pos      ((__uint8_t)0) // TODO: Check this register
+#define RegOcp_OcpOn                   ((__uint8_t)0x1 << 5) 
+#define RegOcp_OcpTrim_Pos             ((__uint8_t)5) 
+#define RegLna_LnaGain_G1              ((__uint8_t)0x1 << 5) 
+#define RegLna_LnaGain_G2              ((__uint8_t)0x2 << 5) 
+#define RegLna_LnaGain_G3              ((__uint8_t)0x3 << 5) 
+#define RegLna_LnaGain_G4              ((__uint8_t)0x4 << 5) 
+#define RegLna_LnaGain_G5              ((__uint8_t)0x5 << 5) 
+#define RegLna_LnaGain_G6              ((__uint8_t)0x6 << 5) 
+#define RegLna_LnaBoostHf              ((__uint8_t)0x3 << 0)
 
-typedef enum{
-    LORA_SF6                         = ((__uint8_t)0x06 << 4),
-    LORA_SF7                         = ((__uint8_t)0x07 << 4),
-    LORA_SF8                         = ((__uint8_t)0x08 << 4),
-    LORA_SF9                         = ((__uint8_t)0x09 << 4),
-    LORA_SF10                        = ((__uint8_t)0x0A << 4),
-    LORA_SF11                        = ((__uint8_t)0x0B << 4),
-    LORA_SF12                        = ((__uint8_t)0x0C << 4),
+/**
+ * Other Registers for LoRa Mode 
+ */
+#define RegHopChannel_PllTimeout             ((__uint8_t)0x1 << 7)
+#define RegHopChannel_CrcOnPayload           ((__uint8_t)0x1 << 6)
+#define RegHopChannel_FhssPresentChannel_Pos ((__uint8_t)0)
 
-}LoRaSpreadingFactors;
+#define RegModemConfig1_Bw_7_8               ((__uint8_t)0x0 << 4)
+#define RegModemConfig1_Bw_10_4              ((__uint8_t)0x1 << 4)
+#define RegModemConfig1_Bw_15_6              ((__uint8_t)0x2 << 4)
+#define RegModemConfig1_Bw_20_8              ((__uint8_t)0x3 << 4)
+#define RegModemConfig1_Bw_31_25             ((__uint8_t)0x4 << 4)    
+#define RegModemConfig1_Bw_41_7              ((__uint8_t)0x5 << 4)
+#define RegModemConfig1_Bw_62_5              ((__uint8_t)0x6 << 4)
+#define RegModemConfig1_Bw_125               ((__uint8_t)0x7 << 4)
+#define RegModemConfig1_Bw_250               ((__uint8_t)0x8 << 4)
+#define RegModemConfig1_Bw_500               ((__uint8_t)0x9 << 4)
+#define RegModemConfig1_CR_4_5               ((__uint8_t)0x1 << 1)
+#define RegModemConfig1_CR_4_6               ((__uint8_t)0x2 << 1)
+#define RegModemConfig1_CR_4_7               ((__uint8_t)0x3 << 1)
+#define RegModemConfig1_CR_4_8               ((__uint8_t)0x4 << 1)
+#define RegModemConfig1_ImplicitHeaderModeOn ((__uint8_t)0x1 << 0)
 
-#define TxContinuesMode                ((__uint8_t)0x1 << 3)
-#define RxPayloadCrcOn                 ((__uint8_t)0x1 << 2)
+#define RegModemConfig2_SF_6                 ((__uint8_t)0x6 << 4)
+#define RegModemConfig2_SF_7                 ((__uint8_t)0x7 << 4)
+#define RegModemConfig2_SF_8                 ((__uint8_t)0x8 << 4)
+#define RegModemConfig2_SF_9                 ((__uint8_t)0x9 << 4)
+#define RegModemConfig2_SF_10                ((__uint8_t)0xA << 4)
+#define RegModemConfig2_SF_11                ((__uint8_t)0xB << 4)
+#define RegModemConfig2_SF_12                ((__uint8_t)0xC << 4)
+#define RegModemConfig2_TxContinousMode      ((__uint8_t)0x1 << 3)
+#define RegModemConfig2_RxPayloadCrcOn       ((__uint8_t)0x1 << 2)
+
+
+const struct {
+    __uint8_t address;
+    __uint8_t data;
+} Sx1276_InitRegistersLora = {
+    {RegOpMode, ZeroByte},
+    {RegOpMode,(RegOpMode_LongRangeMode | RegOpMode_Mode_TX)},
+    {, },
+};
+
+typedef struct SX1276_Object {
+    SPI_Object      SPI_Obj;
+    GPIO_Object     DIO0;     
+    GPIO_Object     DIO1;     
+    GPIO_Object     DIO2;     
+    GPIO_Object     DIO3;     
+    GPIO_Object     DIO4;     
+    GPIO_Object     DIO5;     
+    GPIO_Object     TCXO;
+
+
+}SX1276_Object;
+
+static const SX1276_Object SX1276_Obj = {
+    .SPI_Obj        = SPI_SX1276,
+    .DIO0           = DIO0_SX1276,
+    .DIO1           = DIO1_SX1276,
+    .DIO2           = DIO2_SX1276,
+    .DIO3           = DIO3_SX1276,
+    .DIO4           = DIO4_SX1276,
+    .DIO5           = DIO5_SX1276,
+    .TCXO           = TCXO_SX1276
+
+};
+
+void SX1276_Init(SX1276_Object Obj);
+
+
 
 #endif

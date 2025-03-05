@@ -59,8 +59,8 @@ typedef struct UART_Object {
 
 
 static const UART_Object UART_Debug = {
-    .TX                         = GPIOA_2, 
-    .RX                         = GPIOA_3,
+    .TX                         = TX_Debug, 
+    .RX                         = RX_Debug,
     .UART_Struct                = USART2,
     .BaudRate                   = BuadRate_2,
     .OverSampling               = OverSampling_16,
@@ -69,8 +69,8 @@ static const UART_Object UART_Debug = {
 };
 
 static const UART_Object UART_L80 = {
-    .TX                         = GPIOA_9, 
-    .RX                         = GPIOA_10,
+    .TX                         = TX_L80, 
+    .RX                         = RX_L80,
     .UART_Struct                = USART1,
     .BaudRate                   = BuadRate_2,
     .OverSampling               = OverSampling_16,

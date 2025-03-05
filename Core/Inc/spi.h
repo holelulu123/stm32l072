@@ -9,7 +9,7 @@
 
 /**
  * Choose the Right SPI interface, 
- * in our STM32 it's either SPI1 or SPI2. (There's is no more)
+ * in our STM32 it's either SPI1 or SPI2. (There's is no more options)
  */
 typedef enum SPI_NumberTag : __uint8_t {
     SPI_1   = 0x0, 
@@ -136,8 +136,8 @@ static const SPI_Object SPI_SX1276 = {
 };
 
 
-void      SPI_SetRegisters (SPI_Object Obj);
-__uint8_t SPI_ReadRegister (__uint8_t address, SPI_Object Obj);
+void      SPI_SetRegisters(SPI_Object Obj);
+__uint8_t SPI_ReadRegister(__uint8_t address, SPI_Object Obj);
 void      SPI_WriteRegister(__uint8_t address, __uint8_t data, SPI_Object Obj);
 
 #endif

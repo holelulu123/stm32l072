@@ -93,7 +93,7 @@ typedef enum GPIONameTag : __uint8_t {
 
 
 /**
- * GPIO Object 
+ * GPIO Object declartions
  */
 typedef struct GPIO_Object {
     GPIOPinNumber           PinNumber;
@@ -108,11 +108,6 @@ typedef struct GPIO_Object {
 }GPIO_Object;
 
 
-
-
-/**
- * GPIOB - 8 declaration of GPIO Object
- */
 static const GPIO_Object GPIOB_5 = {
     .PinNumber          = GPIO_PIN_5,
     .Name               = GPIO_B,
@@ -123,10 +118,12 @@ static const GPIO_Object GPIOB_5 = {
     .AF                 = AF0,
     .GPIOP              = GPIOB
 };
+
 /**
- * GPIOA - 2 declaration of GPIO Object
+ * UART Connection to computer Debugging
  */
-static const GPIO_Object GPIOA_2 = {
+
+static const GPIO_Object TX_Debug = {
     .PinNumber          = GPIO_PIN_2,
     .Name               = GPIO_A,
     .Mode               = AlternateMode,
@@ -137,10 +134,7 @@ static const GPIO_Object GPIOA_2 = {
     .GPIOP              = GPIOA
 };
 
-/**
- * GPIOA - 3 declaration of GPIO Object
- */
-static const GPIO_Object GPIOA_3 = {
+static const GPIO_Object RX_Debug = {
     .PinNumber          = GPIO_PIN_3,
     .Name               = GPIO_A,
     .Mode               = AlternateMode,
@@ -152,9 +146,10 @@ static const GPIO_Object GPIOA_3 = {
 };
 
 /**
- * GPIOA - 9 declaration of GPIO Object
+ * UART Connections to L80-m39 IC
  */
-static const GPIO_Object GPIOA_9 = {
+
+static const GPIO_Object TX_L80 = {
     .PinNumber          = GPIO_PIN_9,
     .Name               = GPIO_A,
     .Mode               = AlternateMode,
@@ -165,11 +160,7 @@ static const GPIO_Object GPIOA_9 = {
     .GPIOP              = GPIOA
 };
 
-/**
- * GPIOA - 10 declaration of GPIO Object
- */
-
-static const GPIO_Object GPIOA_10 = {
+static const GPIO_Object RX_L80 = {
     .PinNumber          = GPIO_PIN_10,
     .Name               = GPIO_A,
     .Mode               = AlternateMode,
@@ -180,6 +171,9 @@ static const GPIO_Object GPIOA_10 = {
     .GPIOP              = GPIOA
 };
 
+/**
+ * SX1276 GPIOs
+ */
 static const GPIO_Object SPI_MOSI_SX1276 = {
     .PinNumber          = GPIO_PIN_7,
     .Name               = GPIO_A,
@@ -213,7 +207,6 @@ static const GPIO_Object SPI_SCLK_SX1276 = {
     .GPIOP              = GPIOB
 };
 
-
 static const GPIO_Object SPI_NSS_SX1276 = {
     .PinNumber          = GPIO_PIN_15,
     .Name               = GPIO_A,
@@ -235,6 +228,84 @@ static const GPIO_Object TCXO_SX1276 = {
     .AF                 = AF0,
     .GPIOP              = GPIOA
 };
+
+static const GPIO_Object DIO0_SX1276 = {
+    .PinNumber          = GPIO_PIN_4,
+    .Name               = GPIO_B,
+    .Mode               = InputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOB
+};
+
+static const GPIO_Object DIO1_SX1276 = {
+    .PinNumber          = GPIO_PIN_1,
+    .Name               = GPIO_B,
+    .Mode               = InputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOB
+};
+
+static const GPIO_Object DIO2_SX1276 = {
+    .PinNumber          = GPIO_PIN_0,
+    .Name               = GPIO_B,
+    .Mode               = InputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOB
+};
+
+static const GPIO_Object DIO3_SX1276 = {
+    .PinNumber          = GPIO_PIN_13,
+    .Name               = GPIO_C,
+    .Mode               = InputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOC
+};
+
+static const GPIO_Object DIO4_SX1276 = {
+    .PinNumber          = GPIO_PIN_5,
+    .Name               = GPIO_A,
+    .Mode               = InputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOA
+};
+
+static const GPIO_Object DIO5_SX1276 = {
+    .PinNumber          = GPIO_PIN_4,
+    .Name               = GPIO_A,
+    .Mode               = InputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOA
+};
+
+static const GPIO_Object RESET_SX1276 = {
+    .PinNumber          = GPIO_PIN_0,
+    .Name               = GPIO_C,
+    .Mode               = OutputMode,
+    .Speed              = MediumSpeed,
+    .Pupr               = PullUp,
+    .Type               = PushPull,
+    .AF                 = AF0,
+    .GPIOP              = GPIOC
+};
+
 
 /**
  * GPIOs Basic Functions
