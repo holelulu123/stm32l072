@@ -6,6 +6,44 @@
 #include "spi.h"
 #include "uart.h"
 
+static __uint8_t SX1276_FifoPtr = SX1276_FifoTxBaseAddr; 
+
+void SX1276_Test(SX1276_Object Obj){
+    SPI_WriteRegister(RegOpMode, ZeroByte, Obj.SPI_Obj);
+    SPI_WriteRegister(RegOpMode, RegOpMode_Mode_Sleep, Obj.SPI_Obj);
+    __uint8_t Mode    = SPI_ReadRegister(RegOpMode, Obj.SPI_Obj);
+    UART_printf("Mode is: 0x%x \r\n", Mode);
+    
+    SPI_WriteRegister(RegOpMode, RegOpMode_LongRangeMode, Obj.SPI_Obj);
+    SPI_WriteRegister(RegOpMode, RegOpMode_Mode_Stdby, Obj.SPI_Obj);
+    
+    Mode    = SPI_ReadRegister(RegOpMode, Obj.SPI_Obj);
+    UART_printf("Mode is: 0x%x \r\n", Mode);
+// 
+    // __uint8_t FifoAddrPtr    = SPI_ReadRegister(RegFifoAddrPtr, Obj.SPI_Obj);
+    // UART_printf("FifoAddrPtr = 0x%x\r\n", FifoAddrPtr);
+    // 
+    // __uint8_t FifoTxBaseAddr = SPI_ReadRegister(RegFifoAddrPtr, Obj.SPI_Obj);
+    // UART_printf("FifoTxBaseAddr = 0x%x\r\n", FifoTxBaseAddr);
+    // 
+    // SPI_WriteRegister(RegFifo, 0x0A, Obj.SPI_Obj);
+    // 
+    // FifoAddrPtr    = SPI_ReadRegister(RegFifoAddrPtr, Obj.SPI_Obj);
+    // UART_printf("FifoAddrPtr = 0x%x\r\n", FifoAddrPtr);
+    // 
+    // FifoTxBaseAddr = SPI_ReadRegister(RegFifoAddrPtr, Obj.SPI_Obj);
+    // UART_printf("FifoTxBaseAddr = 0x%x\r\n", FifoTxBaseAddr);
+    // 
+    // SPI_WriteRegister(RegFifoAddrPtr, 0x0, Obj.SPI_Obj);
+    // __uint8_t value_of_fifo = SPI_ReadRegister(RegFifo, Obj.SPI_Obj);
+    // UART_printf("Value of FIFO is = 0x%x\r\n", value_of_fifo);
+    // 
+
+    UART_printf("-------------------------------------------------\r\n");
+
+    
+}
+
 void SX1276_Init(SX1276_Object Obj){
     /** 
      * @brief Initializes the registers of the SX1276 IC,  
@@ -43,27 +81,33 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
 
 }
 
-void SX1276_SetTX(){
-    /**
-     * Sets the internal registers to change to transmit mode.
-     * after that, the device is ready to transmit 
-     */
 
-}
-
-void SX1276_Transmit(){
+void SX1276_Transmit(SX1276_Object Obj, __uint8_t word){
     /**
      *  Sends a byte to the internal FIFO of the sx1276 to be transmitted. 
      * */    
+    if(SX1276_FifoPtr == SX1276_FifoTxMaxAddr){
+        SX1276_FifoPtr = SX1276_FifoTxBaseAddr;
+    }
+     // Switch to stdby mode
+    SPI_WriteRegister(RegOpMode, RegOpMode_Mode_Stdby, Obj.SPI_Obj);
+    // Write to the pointer register, and then to the fifo.
+    SPI_WriteRegister(RegFifoAddrPtr, SX1276_FifoPtr, Obj.SPI_Obj);
+    SPI_WriteRegister(RegFifo, word, Obj.SPI_Obj);
+    SPI_WriteRegister(RegOpMode, RegOpMode_Mode_TX, Obj.SPI_Obj);
+    while(!((SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj) >> 3) & 0x1));
+    SX1276_FifoPtr++;
+
+
 
 }
 
 
 
-float SX1276_GetFreq(){
-    /**
-     * @brief Gets the RF Carrier Frequncey of the LORA Transceiver 
-     * and return float format that represent the frequnecy in Hz. 
-     */
+// float SX1276_GetFreq(){
+//     /**
+//      * @brief Gets the RF Carrier Frequncey of the LORA Transceiver 
+//      * and return float format that represent the frequnecy in Hz. 
+//      */
 
-}
+// }

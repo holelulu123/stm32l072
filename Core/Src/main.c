@@ -7,6 +7,7 @@
 #include "main.h"
 #include "spi.h"
 #include "l80_m39.h"
+#include "sx_1276.h"
 
 void SystemInit()
 {  
@@ -20,16 +21,9 @@ int main(void)
 {
     SetClock(Clock_Configuration);
     UART_SetRegisters(UART_Debug);
-    UART_SetRegisters(UART_L80);
-    
-    __uint8_t temp;
-    __uint8_t address = 0x01;
-    __uint8_t data = 0x80;
-    temp = SPI_ReadRegister(address, SPI_SX1276);
-    UART_printf("The data of address 0x%x is: 0x%x\r\n",address, temp);
-    
-    // SPI_WriteRegister(address, data, SPI_SX1276);
-    // temp = SPI_ReadRegister(address, SPI_SX1276);
-    // UART_printf("The data of address 0x%x is: 0x%x\r\n",address, temp);
+    SX1276_Init(SX1276_Obj);
+    __uint8_t word = 0x2d;
+    SX1276_Transmit(SX1276_Obj, word);
+    UART_printf("-------------------------------------------------\r\n");
 }   
 

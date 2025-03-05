@@ -4,11 +4,14 @@
 #include "spi.h"
 #include "gpio.h"
 
+// static __uint8_t SX1276_FifoPtr;
+
 #define ZeroByte                       ((__uint8_t)0x00)
 #define FXOSC                          32000000
 #define CONST_2_19                     524288
 #define FSTEP                          (FXOSC / CONST_2_19)
-
+#define SX1276_FifoTxBaseAddr          ((__uint8_t)0x80)
+#define SX1276_FifoTxMaxAddr           ((__uint8_t)0xFF)
 // Registers Map
 #define RegFifo                        ((__uint8_t)0x00) 
 #define RegOpMode                      ((__uint8_t)0x01)
@@ -139,14 +142,7 @@
 #define RegModemConfig2_RxPayloadCrcOn       ((__uint8_t)0x1 << 2)
 
 
-const struct {
-    __uint8_t address;
-    __uint8_t data;
-} Sx1276_InitRegistersLora = {
-    {RegOpMode, ZeroByte},
-    {RegOpMode,(RegOpMode_LongRangeMode | RegOpMode_Mode_TX)},
-    {, },
-};
+
 
 typedef struct SX1276_Object {
     SPI_Object      SPI_Obj;
@@ -174,7 +170,8 @@ static const SX1276_Object SX1276_Obj = {
 };
 
 void SX1276_Init(SX1276_Object Obj);
-
-
+void SX1276_Test(SX1276_Object Obj);
+void SX1276_SetFreq(SX1276_Object Obj, float freq);
+void SX1276_Transmit(SX1276_Object Obj, __uint8_t word);
 
 #endif
