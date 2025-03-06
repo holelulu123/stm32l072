@@ -115,6 +115,7 @@
 #define RegHopChannel_CrcOnPayload           ((__uint8_t)0x1 << 6)
 #define RegHopChannel_FhssPresentChannel_Pos ((__uint8_t)0)
 
+#define RegModemConfig1_Bw_Pos               ((__uint8_t)4)
 #define RegModemConfig1_Bw_7_8               ((__uint8_t)0x0 << 4)
 #define RegModemConfig1_Bw_10_4              ((__uint8_t)0x1 << 4)
 #define RegModemConfig1_Bw_15_6              ((__uint8_t)0x2 << 4)
@@ -130,7 +131,7 @@
 #define RegModemConfig1_CR_4_7               ((__uint8_t)0x3 << 1)
 #define RegModemConfig1_CR_4_8               ((__uint8_t)0x4 << 1)
 #define RegModemConfig1_ImplicitHeaderModeOn ((__uint8_t)0x1 << 0)
-
+#define RegModemConfig2_SF_Pos               ((__uint8_t)4)
 #define RegModemConfig2_SF_6                 ((__uint8_t)0x6 << 4)
 #define RegModemConfig2_SF_7                 ((__uint8_t)0x7 << 4)
 #define RegModemConfig2_SF_8                 ((__uint8_t)0x8 << 4)
@@ -169,9 +170,41 @@ static const SX1276_Object SX1276_Obj = {
 
 };
 
+typedef enum LoraBw : __uint8_t {
+    LoRa_Bw_7_8     = 0x0,
+    LoRa_Bw_10_4    = 0x1,
+    LoRa_Bw_15_6    = 0x2,
+    LoRa_Bw_20_8    = 0x3,
+    LoRa_Bw_31_25   = 0x4,
+    LoRa_Bw_41_7    = 0x5,
+    LoRa_Bw_62_5    = 0x6,
+    LoRa_Bw_125     = 0x7,
+    LoRa_Bw_250     = 0x8,
+    LoRa_Bw_500     = 0x9
+    
+}LoraBw;
+
+typedef enum LoraSpreadingFactor : __uint8_t {
+    LoRa_SF_6    = 0x6,
+    LoRa_SF_7    = 0x7,
+    LoRa_SF_8    = 0x8,
+    LoRa_SF_9    = 0x9,
+    LoRa_SF_10   = 0xA,
+    LoRa_SF_11   = 0xB,
+    LoRa_SF_12   = 0xC
+    
+}LoraSpreadingFactor;
+
+void SX1276_SetBW(SX1276_Object Obj, enum LoraBw BW);
+
+void SX1276_SetSF(SX1276_Object Obj, enum LoraSpreadingFactor SF);
+
 void SX1276_Init(SX1276_Object Obj);
-void SX1276_Test(SX1276_Object Obj);
+
+void SX1276_Mode_Stdby(SX1276_Object Obj);
+
 void SX1276_SetFreq(SX1276_Object Obj, float freq);
-void SX1276_Transmit(SX1276_Object Obj, __uint8_t word);
+
+void SX1276_Transmit(SX1276_Object Obj, __uint8_t *transmit_word, size_t size);
 
 #endif
