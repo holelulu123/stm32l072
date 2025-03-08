@@ -85,7 +85,6 @@ void UART_Write(UART_Object Obj ,char message[]){
     // Wait for TC to be 1, indicates that the transmittion has completed
     while(!((Obj.UART_Struct->ISR >> USART_ISR_TC_Pos) & 0x1));
 
-    // USART1->CR1 &= ~(0x1 << 3); // Disable the Transmission
 }
 
 
@@ -104,13 +103,14 @@ char* UART_Read(UART_Object Obj, char start_sign, char end_sign){
     __uint8_t end = 0; 
     __uint8_t index = 0; 
     while(!end){
-        while(!((USART1->ISR >> 5) & 0x1));
+        while(!((Obj.UART_Struct->ISR >> 5) & 0x1));
         byte = Obj.UART_Struct->RDR;
 
         if (byte == end_sign && start){
-            message[index]      = '\r';
-            message[index + 1]  = '\n';
-            message[index + 2]  = '\0';
+            message[index]      = byte;
+            message[index + 1]  = '\r';
+            message[index + 2]  = '\n';
+            message[index + 3]  = '\0';
             end                 =   1;
             return message;
         }

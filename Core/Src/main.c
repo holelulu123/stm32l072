@@ -21,15 +21,26 @@ int main(void)
 {
     SetClock(Clock_Configuration);
     UART_SetRegisters(UART_Debug);
-    SX1276_Init(SX1276_Obj);
-    __uint8_t transmit_word[] = {0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
+    __uint8_t transmit_word[] = {0x68, 0x65 ,0x6C ,0x6C 0x6F ,0x20 ,0x77 ,0x6F ,0x72 ,0x6C ,0x64};
     size_t arr_size = sizeof(transmit_word) / sizeof(transmit_word[0]);
-    float freq = 915e6;
+    float freq = 915000000;
+    __uint8_t* text;
+    __uint8_t  transmitter = 0; // this value defines if the device is transmitter (master) or receiver (slave)
+    SX1276_Init   (SX1276_Obj);
     SX1276_SetFreq(SX1276_Obj, freq);
-    SX1276_SetSF(SX1276_Obj, LoRa_SF_7);
-    SX1276_SetBW(SX1276_Obj, LoRa_Bw_125);
+    SX1276_SetSF  (SX1276_Obj, LoRa_SF_7);
+    SX1276_SetBW  (SX1276_Obj, LoRa_Bw_125);
     while(1){
-        // SX1276_Transmit(SX1276_Obj, transmit_word, arr_size);
-    }
+        switch (transmitter){
+            case 0:
+                text = SX1276_RxCon(SX1276_Obj);
+                UART_printf("%s\r\n",text);
+                break;
+            case 1:
+                SX1276_Tx(SX1276_Obj, transmit_word, arr_size);
+                break;
+        }
+    }   
+
 }
 

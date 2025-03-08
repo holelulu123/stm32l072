@@ -26,7 +26,8 @@
         "string": "c",
         "string_view": "c",
         "span": "c",
-        "sx_1276.h": "c"
+        "sx_1276.h": "c",
+        "variant": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

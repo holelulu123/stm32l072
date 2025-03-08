@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <cstring>
 #include "board_config.h"
 #include "sx_1276.h"
 #include "gpio.h"
@@ -6,22 +7,42 @@
 #include "spi.h"
 #include "uart.h"
 
-static __uint8_t SX1276_FifoPtr = SX1276_FifoTxBaseAddr; 
+static __uint8_t SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr; 
+static __uint8_t SX1276_FifoPtrRx = SX1276_FifoRxBaseAddr;
 
+void SX1276_ResetImplicitMode(SX1276_Object Obj){
+    /**
+     * @brief Resets Implicit mode (Set explicit mode) for the comminication.
+     * which means that header is sent.
+     */
+    __uint8_t readValue = SPI_ReadRegister(RegModemConfig1, Obj.SPI_Obj);
+    readValue &= ~(RegModemConfig1_ImplicitHeaderModeOn);
+    SPI_WriteRegister(RegModemConfig1, readValue, Obj.SPI_Obj);
+}
 
+void SX1276_SetImplicitMode(SX1276_Object Obj){
+    /**
+     * @brief Sets Implicit mode for the comminication, means that no header is sent.
+     */
+    __uint8_t readValue = SPI_ReadRegister(RegModemConfig1, Obj.SPI_Obj);
+    readValue &= ~(RegModemConfig1_ImplicitHeaderModeOn);
+    readValue |=  (RegModemConfig1_ImplicitHeaderModeOn);
+    SPI_WriteRegister(RegModemConfig1, readValue, Obj.SPI_Obj);
 
+}
 
-void SX1276_Mode_Stdby(SX1276_Object Obj){
+void SX1276_SetMode(SX1276_Object Obj, enum LoraModes Mode){
     /**
      * @brief Switch the SX1276 to Stdby mode.
      */
-    __uint8_t mode = SPI_ReadRegister(RegOpMode, Obj.SPI_Obj);
-    SPI_WriteRegister(RegOpMode, RegOpMode_LongRangeMode, Obj.SPI_Obj);
-    SPI_WriteRegister(RegOpMode, RegOpMode_Mode_Stdby, Obj.SPI_Obj);
+
+    __uint8_t readValue = SPI_ReadRegister(RegOpMode, Obj.SPI_Obj);
+    readValue &= ~(RegOpMode_Mode_Msk);
+    readValue |=  (Mode << RegOpMode_Mode_Pos);
+    SPI_WriteRegister(RegOpMode, readValue, Obj.SPI_Obj);
 
 
 }   
-
 
 void SX1276_Init(SX1276_Object Obj){
     /** 
@@ -31,7 +52,19 @@ void SX1276_Init(SX1276_Object Obj){
     GPIO_Init(Obj.TCXO);
     GPIO_Set(Obj.TCXO);
     SPI_SetRegisters(Obj.SPI_Obj);
+    SPI_WriteRegister(RegOpMode, RegOpMode_Mode_Sleep, Obj.SPI_Obj);
+    SPI_WriteRegister(RegOpMode, RegOpMode_LongRangeMode, Obj.SPI_Obj);
 
+}
+
+void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue){
+    /**
+     * @brief Sets the preamble size of each packet, from 8-65536
+     */
+    __uint8_t preambleLsb =  preambleValue & 0xFF;
+    __uint8_t preambleMsb = (preambleValue >> 8) & 0xFF;
+    SPI_WriteRegister(RegPreambleLsb, preambleLsb, Obj.SPI_Obj);
+    SPI_WriteRegister(RegPreambleMsb, preambleMsb, Obj.SPI_Obj);
 }
 
 void SX1276_SetFreq(SX1276_Object Obj, float freq){
@@ -39,10 +72,8 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
      * @brief Sets the RF Carrier Frequncey of the LORA Transceiver
      * @param freq -> sets the RF carrier frequency of the LO of the SX1276
      */
-
-    __uint8_t readValue = SPI_ReadRegister(RegOpMode ,Obj.SPI_Obj);  
-    __uint8_t tempValue = readValue & ~(RegOpMode_Mode_Msk);
-    SPI_WriteRegister(RegOpMode, tempValue, Obj.SPI_Obj);
+    // Switch to stdby mode
+    SX1276_SetMode(Obj, Mode_Stdby);
     // Calculate the freq and divide it to lsb, msb, mid 
     int frf = (freq / FSTEP);
     __uint8_t msb = 0xFF & (frf >> 16);
@@ -52,9 +83,6 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
     SPI_WriteRegister(RegFrfMsb, msb, Obj.SPI_Obj);
     SPI_WriteRegister(RegFrfMid, mid, Obj.SPI_Obj);
     SPI_WriteRegister(RegFrfLsb, lsb, Obj.SPI_Obj);
-    SPI_WriteRegister(RegOpMode, readValue, Obj.SPI_Obj);
-
-
 
 }
 
@@ -63,9 +91,11 @@ void SX1276_SetSF(SX1276_Object Obj, enum LoraSpreadingFactor SF){
      * Set Spreading Factor for tranmission, Check enum in SX1276.h for options.
      */
     
-    SX1276_Mode_Stdby(Obj);
-    __uint8_t byte = (SF << RegModemConfig2_SF_Pos); 
-    SPI_WriteRegister(RegModemConfig2, byte, Obj.SPI_Obj);
+    SX1276_SetMode(Obj, Mode_Stdby);
+    __uint8_t readValue = SPI_ReadRegister(RegModemConfig2, Obj.SPI_Obj);
+    readValue &= ~(RegModemConfig2_SF_Msk); 
+    readValue |=  (SF << RegModemConfig2_SF_Pos); 
+    SPI_WriteRegister(RegModemConfig2, readValue, Obj.SPI_Obj);
 
 }
 
@@ -74,46 +104,76 @@ void SX1276_SetBW(SX1276_Object Obj, enum LoraBw BW){
      * Sets Bandwidth of LoRa Communication, Check enum in SX1276.h for options.
      */
 
-    SX1276_Mode_Stdby(Obj);
-    __uint8_t byte = (BW << RegModemConfig1_Bw_Pos); 
-    SPI_WriteRegister(RegModemConfig1, byte, Obj.SPI_Obj);
+     SX1276_SetMode(Obj, Mode_Stdby);
+    __uint8_t readValue = SPI_ReadRegister(RegModemConfig1, Obj.SPI_Obj);
+    readValue &= ~(RegModemConfig1_Bw_Msk);
+    readValue |=  (BW << RegModemConfig1_Bw_Pos);
+    SPI_WriteRegister(RegModemConfig1, readValue, Obj.SPI_Obj);
 }
 
-void SX1276_Transmit(SX1276_Object Obj, __uint8_t* transmit_word, size_t size){
+void SX1276_Tx(SX1276_Object Obj, __uint8_t* transmit_word, size_t size){
     /**
      *  Sends a byte to the internal FIFO of the sx1276 to be transmitted. 
      * */    
-    if(SX1276_FifoPtr == SX1276_FifoTxMaxAddr){
-        SX1276_FifoPtr = SX1276_FifoTxBaseAddr;
+
+    // Sets the payload size before (maybe)
+    if(SX1276_FifoPtrTx == SX1276_FifoTxMaxAddr){
+        SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr;
     }
     
     // Switch to stdby mode and Check if it switched to stdby
-    SX1276_Mode_Stdby(Obj);
+    SX1276_SetMode(Obj, Mode_Stdby);
     __uint8_t TxDone = 0;
     __uint8_t index = 0;
     while(index < size){
     // Write to the pointer register, and then to the fifo.
-        SPI_WriteRegister(RegFifoAddrPtr, SX1276_FifoPtr, Obj.SPI_Obj);
+        SPI_WriteRegister(RegFifoAddrPtr, SX1276_FifoPtrTx, Obj.SPI_Obj);
         SPI_WriteRegister(RegFifo, transmit_word[index], Obj.SPI_Obj);
-        SPI_WriteRegister(RegOpMode, RegOpMode_Mode_TX, Obj.SPI_Obj);
+        SX1276_SetMode(Obj, Mode_Tx);
         TxDone = 0;
         while(!TxDone){
             TxDone = SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj);
             TxDone = (TxDone >> 3) & 0x1; 
         }
-        SX1276_FifoPtr++;
+        SX1276_FifoPtrTx++;
         index++;
     }
 
 
 }
 
+__uint8_t* SX1276_RxCon(SX1276_Object Obj){
+    /**
+     * This function switch the SX1276 to Receiver mode, it Waits for a signal to be received and return
+     * the array of bytes that sent.
+     */
+    
+    // In this mode, the device is in continues reception mode, when the device caught a packet,
+    // it Sets up the RxDone interupt, the Register RegRxNbBytes says the packet size. 
 
+    // Switch to RX mode
+    static __uint8_t message[PayloadMaxSize];
+    memset(message, 0, PayloadMaxSize);
 
-// float SX1276_GetFreq(){
-//     /**
-//      * @brief Gets the RF Carrier Frequncey of the LORA Transceiver 
-//      * and return float format that represent the frequnecy in Hz. 
-//      */
+    SX1276_SetMode(Obj, Mode_RXContinues);
+    // Check for the reception to finished which means all the interupts 
+    while(!((SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj) >> RegIrqFlags_RxDone_Pos) & 0x1));
+    // Another Crc check at the payload could be done, the bit CrcOnPayload should be turned on, but it
+    // and it checked if the header has it (only on explicit header mode), if the transmitter has implicit header
+    // The PayloadCrcError bit is not helpful and couldnt be set 
 
-// }
+    __uint8_t payloadSize = SPI_ReadRegister(RegRxNbBytes, Obj.SPI_Obj);
+    __uint8_t index = 0;
+    __uint8_t start_add = SPI_ReadRegister(RegFifoRxByteAddr, Obj.SPI_Obj) - payloadSize;
+    SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
+    while(start_add < (start_add + payloadSize)){
+        message[index] = SPI_ReadRegister(RegFifo, Obj.SPI_Obj);
+        index++;
+        start_add++;
+        SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
+    } 
+    
+    // Switch to Stdby Mode again 
+    SX1276_SetMode(Obj, Mode_Stdby);
+    return message;
+}

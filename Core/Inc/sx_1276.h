@@ -4,14 +4,18 @@
 #include "spi.h"
 #include "gpio.h"
 
-// static __uint8_t SX1276_FifoPtr;
 
+#define PayloadMaxSize                 ((__uint8_t)0xFF)
 #define ZeroByte                       ((__uint8_t)0x00)
 #define FXOSC                          32000000
 #define CONST_2_19                     524288
 #define FSTEP                          (FXOSC / CONST_2_19)
 #define SX1276_FifoTxBaseAddr          ((__uint8_t)0x80)
 #define SX1276_FifoTxMaxAddr           ((__uint8_t)0xFF)
+
+#define SX1276_FifoRxBaseAddr          ((__uint8_t)0x00)
+#define SX1276_FifoRxMaxAddr           ((__uint8_t)0x80)
+
 // Registers Map
 #define RegFifo                        ((__uint8_t)0x00) 
 #define RegOpMode                      ((__uint8_t)0x01)
@@ -89,6 +93,7 @@
 #define RegOpMode_Mode_RXSingle        ((__uint8_t)0x6 << 0)
 #define RegOpMode_Mode_CAD             ((__uint8_t)0x7 << 0)
 #define RegOpMode_Mode_Msk             ((__uint8_t)0x7 << 0)
+#define RegOpMode_Mode_Pos             ((__uint8_t)0)
 
 /**
  * Registers for RF Blocks
@@ -126,6 +131,7 @@
 #define RegModemConfig1_Bw_125               ((__uint8_t)0x7 << 4)
 #define RegModemConfig1_Bw_250               ((__uint8_t)0x8 << 4)
 #define RegModemConfig1_Bw_500               ((__uint8_t)0x9 << 4)
+#define RegModemConfig1_Bw_Msk               ((__uint8_t)0xF << 4)
 #define RegModemConfig1_CR_4_5               ((__uint8_t)0x1 << 1)
 #define RegModemConfig1_CR_4_6               ((__uint8_t)0x2 << 1)
 #define RegModemConfig1_CR_4_7               ((__uint8_t)0x3 << 1)
@@ -139,9 +145,18 @@
 #define RegModemConfig2_SF_10                ((__uint8_t)0xA << 4)
 #define RegModemConfig2_SF_11                ((__uint8_t)0xB << 4)
 #define RegModemConfig2_SF_12                ((__uint8_t)0xC << 4)
+#define RegModemConfig2_SF_Msk               ((__uint8_t)0xF << 4)
 #define RegModemConfig2_TxContinousMode      ((__uint8_t)0x1 << 3)
 #define RegModemConfig2_RxPayloadCrcOn       ((__uint8_t)0x1 << 2)
 
+#define RegIrqFlags_CadDetected_Pos          ((__uint8_t)0)
+#define RegIrqFlags_FhssChangeChannel_Pos    ((__uint8_t)1)
+#define RegIrqFlags_CadDone_Pos              ((__uint8_t)2)
+#define RegIrqFlags_TxDone_Pos               ((__uint8_t)3)
+#define RegIrqFlags_ValidHeader_Pos          ((__uint8_t)4)
+#define RegIrqFlags_PayloadCrcError_Pos      ((__uint8_t)5)
+#define RegIrqFlags_RxDone_Pos               ((__uint8_t)6)
+#define RegIrqFlags_RxTimeout_Pos            ((__uint8_t)7)
 
 
 
@@ -195,16 +210,33 @@ typedef enum LoraSpreadingFactor : __uint8_t {
     
 }LoraSpreadingFactor;
 
-void SX1276_SetBW(SX1276_Object Obj, enum LoraBw BW);
-
-void SX1276_SetSF(SX1276_Object Obj, enum LoraSpreadingFactor SF);
+typedef enum LoraModes : __uint8_t {
+    Mode_Sleep          = 0x0,
+    Mode_Stdby          = 0x1,
+    Mode_FSTX           = 0x2,
+    Mode_Tx             = 0x3,
+    Mode_FSRX           = 0x4,
+    Mode_RXContinues    = 0x5,
+    Mode_RxSingle       = 0x6,
+    Mode_CAD            = 0x7
+    
+}LoraModes;
 
 void SX1276_Init(SX1276_Object Obj);
+void SX1276_SetMode(SX1276_Object Obj, enum LoraModes Mode);
 
-void SX1276_Mode_Stdby(SX1276_Object Obj);
-
+// PHY level configuration
+void SX1276_SetBW(SX1276_Object Obj, enum LoraBw BW);
+void SX1276_SetSF(SX1276_Object Obj, enum LoraSpreadingFactor SF);
 void SX1276_SetFreq(SX1276_Object Obj, float freq);
 
-void SX1276_Transmit(SX1276_Object Obj, __uint8_t *transmit_word, size_t size);
+// Commuication Data Stracture
+void SX1276_SetImplicitMode(SX1276_Object Obj);
+void SX1276_ResetImplicitMode(SX1276_Object Obj);
+void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue);
+
+// SX1276 Main Purpose tasks
+void       SX1276_Tx   (SX1276_Object Obj, __uint8_t *transmit_word, size_t size);
+__uint8_t* SX1276_RxCon(SX1276_Object Obj);
 
 #endif
