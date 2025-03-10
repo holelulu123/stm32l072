@@ -10,6 +10,33 @@
 static __uint8_t SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr; 
 static __uint8_t SX1276_FifoPtrRx = SX1276_FifoRxBaseAddr;
 
+void SX1276_GetFeiValue(SX1276_Object Obj){
+    /**
+     * Reads the Inidicated RF Center frequency error and return the value
+     */
+    int value = 0;
+    __uint8_t sign = ((SPI_ReadRegister(RegFeiMsb, Obj.SPI_Obj) >> 19) & 0x1); 
+    value |= ((SPI_ReadRegister(RegFeiMsb, Obj.SPI_Obj) >> 16) & 0x7); 
+    value |= ((SPI_ReadRegister(RegFeiMid, Obj.SPI_Obj) >> 8)  & 0xFF); 
+    value |= ((SPI_ReadRegister(RegFeiLsb, Obj.SPI_Obj))       & 0xFF);
+    float Hz;
+    switch (sign){
+        case 0:
+            Hz = value * FEI_CONSTANT;
+            break;
+        case 1:
+            Hz = (-1) * (value * FEI_CONSTANT);
+            break;
+    }
+    UART_printf("The error is: %f\r\n", Hz); 
+
+}   
+
+__uint8_t SX1276_GetPayloadSize(SX1276_Object Obj){
+    __uint8_t size = SPI_ReadRegister(RegPayloadLength, Obj.SPI_Obj);
+    return size;
+}
+
 void SX1276_ResetImplicitMode(SX1276_Object Obj){
     /**
      * @brief Resets Implicit mode (Set explicit mode) for the comminication.
@@ -59,7 +86,7 @@ void SX1276_Init(SX1276_Object Obj){
 
 void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue){
     /**
-     * @brief Sets the preamble size of each packet, from 8-65536
+     * @brief Sets the preamble size of each packet, from 8-65535
      */
     __uint8_t preambleLsb =  preambleValue & 0xFF;
     __uint8_t preambleMsb = (preambleValue >> 8) & 0xFF;
@@ -75,6 +102,7 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
     // Switch to stdby mode
     SX1276_SetMode(Obj, Mode_Stdby);
     // Calculate the freq and divide it to lsb, msb, mid 
+    UART_printf("CONST IS: %f\r\n", FSTEP);
     int frf = (freq / FSTEP);
     __uint8_t msb = 0xFF & (frf >> 16);
     __uint8_t mid = 0xFF & (frf >> 8);
@@ -99,44 +127,54 @@ void SX1276_SetSF(SX1276_Object Obj, enum LoraSpreadingFactor SF){
 
 }
 
+void SX1276_SetPayloadSize(SX1276_Object Obj, __uint8_t payloadsize){
+    /**
+     * Sets the payload size of the lora communication packet
+     * Number from 1-255
+     */
+    SPI_WriteRegister(RegPayloadLength, payloadsize, Obj.SPI_Obj);
+
+}
+
 void SX1276_SetBW(SX1276_Object Obj, enum LoraBw BW){
     /**
      * Sets Bandwidth of LoRa Communication, Check enum in SX1276.h for options.
      */
 
-     SX1276_SetMode(Obj, Mode_Stdby);
+    SX1276_SetMode(Obj, Mode_Stdby);
     __uint8_t readValue = SPI_ReadRegister(RegModemConfig1, Obj.SPI_Obj);
     readValue &= ~(RegModemConfig1_Bw_Msk);
     readValue |=  (BW << RegModemConfig1_Bw_Pos);
     SPI_WriteRegister(RegModemConfig1, readValue, Obj.SPI_Obj);
 }
 
-void SX1276_Tx(SX1276_Object Obj, __uint8_t* transmit_word, size_t size){
+void SX1276_Tx(SX1276_Object Obj, __uint8_t* transmit_word, __uint8_t size){
     /**
      *  Sends a byte to the internal FIFO of the sx1276 to be transmitted. 
      * */    
 
     // Sets the payload size before (maybe)
-    if(SX1276_FifoPtrTx == SX1276_FifoTxMaxAddr){
-        SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr;
-    }
     
+    SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr;
+    // Change payload size
+    SX1276_SetPayloadSize(Obj, size);
     // Switch to stdby mode and Check if it switched to stdby
     SX1276_SetMode(Obj, Mode_Stdby);
-    __uint8_t TxDone = 0;
     __uint8_t index = 0;
     while(index < size){
     // Write to the pointer register, and then to the fifo.
         SPI_WriteRegister(RegFifoAddrPtr, SX1276_FifoPtrTx, Obj.SPI_Obj);
         SPI_WriteRegister(RegFifo, transmit_word[index], Obj.SPI_Obj);
-        SX1276_SetMode(Obj, Mode_Tx);
-        TxDone = 0;
-        while(!TxDone){
-            TxDone = SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj);
-            TxDone = (TxDone >> 3) & 0x1; 
-        }
         SX1276_FifoPtrTx++;
         index++;
+    }
+    SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr;
+    SPI_WriteRegister(RegFifoAddrPtr, SX1276_FifoPtrTx, Obj.SPI_Obj);
+    __uint8_t TxDone = 0;
+    SX1276_SetMode(Obj, Mode_Tx);
+    while(!TxDone){
+        TxDone = SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj);
+        TxDone = (TxDone >> 3) & 0x1; 
     }
 
 
