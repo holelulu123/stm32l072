@@ -233,6 +233,7 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq);
 void SX1276_GetFeiValue(SX1276_Object Obj);
 
 // Commuication Data Stracture
+__uint8_t SX1276_GetSyncWord(SX1276_Object Obj);
 void SX1276_SetImplicitMode(SX1276_Object Obj);
 void SX1276_ResetImplicitMode(SX1276_Object Obj);
 void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue);

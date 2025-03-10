@@ -27,7 +27,7 @@ int main(void)
     float freq = 915000000;
     __uint16_t preamble = 0;
     __uint8_t* text;
-
+    __uint8_t sync_word;
     __uint8_t  transmitter = 1; // this value defines if the device is transmitter (master) or receiver (slave)
     SX1276_Init(SX1276_Obj);
     SX1276_SetFreq(SX1276_Obj, freq);
@@ -40,13 +40,15 @@ int main(void)
                 UART_printf("%s\r\n",text);
                 break;
             case 1:
-                SX1276_SetPrambleLength(SX1276_Obj, preamble);
-                SX1276_Tx(SX1276_Obj, transmit_word, arr_size);
+                sync_word = SX1276_GetSyncWord(SX1276_Obj);
+                UART_printf("Sync word is: 0x%x\r\n", sync_word);
+                // SX1276_SetPrambleLength(SX1276_Obj, preamble);
+                // SX1276_Tx(SX1276_Obj, transmit_word, arr_size);
                 delay_ms(1);
                 
-                SX1276_ResetImplicitMode(SX1276_Obj);
-                SX1276_Tx(SX1276_Obj, transmit_word, arr_size);
-                delay_ms(1);
+                // SX1276_ResetImplicitMode(SX1276_Obj);
+                // SX1276_Tx(SX1276_Obj, transmit_word, arr_size);
+                // delay_ms(1);
                 break;
         }
     }   
