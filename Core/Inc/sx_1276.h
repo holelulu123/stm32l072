@@ -10,7 +10,7 @@
 #define ZeroByte                       ((__uint8_t)0x00)
 #define FXOSC                          32000000
 #define CONST_2_19                     524288
-#define FSTEP                          (float(FXOSC / CONST_2_19))
+#define FSTEP                          61.03515625
 #define SX1276_FifoTxBaseAddr          ((__uint8_t)0x80)
 #define SX1276_FifoTxMaxAddr           ((__uint8_t)0xFF)
 

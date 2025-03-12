@@ -113,8 +113,11 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
      */
     // Switch to stdby mode
     SX1276_SetMode(Obj, Mode_Stdby);
+
     // Calculate the freq and divide it to lsb, msb, mid 
     int frf = (freq / FSTEP);
+    UART_printf("Freq is: %d\r\n", frf);
+    UART_printf("Step is: %f\r\n", FSTEP);
     __uint8_t msb = 0xFF & (frf >> 16);
     __uint8_t mid = 0xFF & (frf >> 8);
     __uint8_t lsb = 0xFF & frf;
