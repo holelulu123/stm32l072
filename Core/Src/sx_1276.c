@@ -116,8 +116,8 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
 
     // Calculate the freq and divide it to lsb, msb, mid 
     int frf = (freq / FSTEP);
-    UART_printf("Freq is: %d\r\n", frf);
-    UART_printf("Step is: %f\r\n", FSTEP);
+    UART_printf("Freq is: %d\r\n", frf); // To Delete this line 
+    UART_printf("Step is: %f\r\n", FSTEP); // To Delete this line
     __uint8_t msb = 0xFF & (frf >> 16);
     __uint8_t mid = 0xFF & (frf >> 8);
     __uint8_t lsb = 0xFF & frf;
@@ -210,22 +210,25 @@ __uint8_t* SX1276_RxCon(SX1276_Object Obj){
     SX1276_SetMode(Obj, Mode_RXContinues);
     // Check for the reception to finished which means all the interupts 
     while(!((SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj) >> RegIrqFlags_RxDone_Pos) & 0x1));    
+    __uint8_t current_reg = SPI_ReadRegister(RegFifoRxCurrentAddr, Obj.SPI_Obj);
+    __uint8_t payloadSize = SPI_ReadRegister(RegRxNbBytes, Obj.SPI_Obj);
+    UART_printf("Start address of the last packet Received: 0x%x\r\n",current_reg); 
+    UART_printf("payload size of last packet Received: 0x%x\r\n",payloadSize); 
     // Another Crc check at the payload could be done, the bit CrcOnPayload should be turned on, but it
     // and it checked if the header has it (only on explicit header mode), If The transmitter has implicit header
     // The PayloadCrcError bit is not helpful and couldnt be set. 
-    __uint8_t payloadSize = SPI_ReadRegister(RegRxNbBytes, Obj.SPI_Obj);
-    __uint8_t index       = 0;
-    __uint8_t start_add   = SPI_ReadRegister(RegFifoRxByteAddr, Obj.SPI_Obj) - payloadSize;
-    SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
-    while(start_add < (start_add + payloadSize)){
-        message[index] = SPI_ReadRegister(RegFifo, Obj.SPI_Obj);
-        index++;
-        start_add++;
-        SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
-    } 
-    
+    // __uint8_t index       = 0;
+    // __uint8_t start_add   = SPI_ReadRegister(RegFifoRxByteAddr, Obj.SPI_Obj) - payloadSize;
+    // SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
+    // while(start_add < (start_add + payloadSize)){
+        // message[index] = SPI_ReadRegister(RegFifo, Obj.SPI_Obj);
+        // index++;
+        // start_add++;
+        // SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
+    // } 
+    // 
     // Switch to Stdby Mode again 
-    SX1276_SetMode(Obj, Mode_Stdby);
-    return message;
+    // SX1276_SetMode(Obj, Mode_Stdby);
+    // return message;
 
 }

@@ -25,10 +25,10 @@ int main(void)
     // __uint8_t transmit_word[] = {0x68};
     __uint8_t arr_size = sizeof(transmit_word) / sizeof(transmit_word[0]);
     float freq = 915000000;
-    __uint16_t preamble = 0;
+    __uint16_t preamble = 4;
     __uint8_t* text;
     __uint8_t sync_word;
-    __uint8_t transmitter = 1; // this value defines if the device is transmitter (master) or receiver (slave)
+    __uint8_t transmitter = 0; // this value defines if the device is transmitter (master) or receiver (slave)
     SX1276_Init(SX1276_Obj);
     SX1276_SetFreq(SX1276_Obj, freq);
     SX1276_SetSF(SX1276_Obj, LoRa_SF_10);

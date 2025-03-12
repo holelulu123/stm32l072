@@ -30,7 +30,7 @@
 #define RegFifoAddrPtr                 ((__uint8_t)0x0D)
 #define RegFifoTxBaseAddr              ((__uint8_t)0x0E)
 #define RegFifoRxBaseAddr              ((__uint8_t)0x0F)
-#define FifoRxCurrentAddr              ((__uint8_t)0x10)
+#define RegFifoRxCurrentAddr           ((__uint8_t)0x10)
 #define RegIrqFlagsMask                ((__uint8_t)0x11)
 #define RegIrqFlags                    ((__uint8_t)0x12)
 #define RegRxNbBytes                   ((__uint8_t)0x13)
