@@ -240,8 +240,11 @@ void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue);
 void SX1276_SetPayloadSize(SX1276_Object Obj, __uint8_t payloadsize);
 __uint8_t SX1276_GetPayloadSize(SX1276_Object Obj);
 
+// SX1276 Helpers
+void SX1276_ClearIrq(SX1276_Object Obj, __uint8_t bitToClear);
+
 // SX1276 Main Purpose tasks
 void       SX1276_Tx   (SX1276_Object Obj, __uint8_t *transmit_word, __uint8_t size);
-__uint8_t* SX1276_RxCon(SX1276_Object Obj);
+void       SX1276_RxCon(SX1276_Object Obj);
 
 #endif

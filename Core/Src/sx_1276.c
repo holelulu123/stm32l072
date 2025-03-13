@@ -10,6 +10,15 @@
 static __uint8_t SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr; 
 static __uint8_t SX1276_FifoPtrRx = SX1276_FifoRxBaseAddr;
 
+void SX1276_ClearIrq(SX1276_Object Obj, __uint8_t bitToClear){
+    /**
+     * This function writes 1 to ReqIrqFlags register specific bit and clears the IRQ
+     */
+    __uint8_t reg_status = SPI_ReadRegister(RegIrqFlagsMask, Obj.SPI_Obj);
+    reg_status |= (0x1 << bitToClear);
+    SPI_WriteRegister(RegIrqFlags, reg_status, Obj.SPI_Obj);
+}
+
 __uint8_t SX1276_GetSyncWord(SX1276_Object Obj){
     /**
      * Reads the value of the sync word of the device
@@ -190,11 +199,12 @@ void SX1276_Tx(SX1276_Object Obj, __uint8_t* transmit_word, __uint8_t size){
         TxDone = SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj);
         TxDone = (TxDone >> 3) & 0x1; 
     }
+    SX1276_ClearIrq(Obj, RegIrqFlags_TxDone_Pos);
 
 
 }
 
-__uint8_t* SX1276_RxCon(SX1276_Object Obj){
+void SX1276_RxCon(SX1276_Object Obj){
     /**
      * This function switch the SX1276 to Receiver mode, it Waits for a signal to be received and return
      * the array of bytes that sent.
@@ -204,31 +214,38 @@ __uint8_t* SX1276_RxCon(SX1276_Object Obj){
     // it Sets up the RxDone interupt, the Register RegRxNbBytes says the packet size. 
 
     // Switch to RX mode
-    static __uint8_t message[PayloadMaxSize];
+    static char message[PayloadMaxSize];
     memset(message, 0, PayloadMaxSize);
 
     SX1276_SetMode(Obj, Mode_RXContinues);
     // Check for the reception to finished which means all the interupts 
-    while(!((SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj) >> RegIrqFlags_RxDone_Pos) & 0x1));    
-    __uint8_t current_reg = SPI_ReadRegister(RegFifoRxCurrentAddr, Obj.SPI_Obj);
+    __uint8_t flag_finished = 0;
+    while(!flag_finished){
+        flag_finished = SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj);
+        flag_finished = (flag_finished >> RegIrqFlags_RxDone_Pos) & 0x1;
+    }    
+    flag_finished = 0;
+    SX1276_ClearIrq(Obj, RegIrqFlags_RxDone_Pos);
+    __uint8_t start_reg   = SPI_ReadRegister(RegFifoRxCurrentAddr, Obj.SPI_Obj);
+    __uint8_t end_reg     = SPI_ReadRegister(RegFifoRxByteAddr, Obj.SPI_Obj);
     __uint8_t payloadSize = SPI_ReadRegister(RegRxNbBytes, Obj.SPI_Obj);
-    UART_printf("Start address of the last packet Received: 0x%x\r\n",current_reg); 
-    UART_printf("payload size of last packet Received: 0x%x\r\n",payloadSize); 
     // Another Crc check at the payload could be done, the bit CrcOnPayload should be turned on, but it
     // and it checked if the header has it (only on explicit header mode), If The transmitter has implicit header
     // The PayloadCrcError bit is not helpful and couldnt be set. 
-    // __uint8_t index       = 0;
-    // __uint8_t start_add   = SPI_ReadRegister(RegFifoRxByteAddr, Obj.SPI_Obj) - payloadSize;
-    // SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
-    // while(start_add < (start_add + payloadSize)){
-        // message[index] = SPI_ReadRegister(RegFifo, Obj.SPI_Obj);
-        // index++;
-        // start_add++;
-        // SPI_WriteRegister(RegFifoAddrPtr, start_add, Obj.SPI_Obj);
-    // } 
-    // 
-    // Switch to Stdby Mode again 
-    // SX1276_SetMode(Obj, Mode_Stdby);
+    
+    __uint8_t index = 0;
+    while(!flag_finished){
+        SPI_WriteRegister(RegFifoAddrPtr, start_reg, Obj.SPI_Obj);
+        message[index] = SPI_ReadRegister(RegFifo, Obj.SPI_Obj);
+        index++;
+        start_reg++;
+        if((start_reg - end_reg) == 0){
+            flag_finished = 1;
+        }
+    } 
+    
+    SX1276_SetMode(Obj, Mode_Stdby);
+    UART_printf("%s\r\n", message);
     // return message;
 
 }
