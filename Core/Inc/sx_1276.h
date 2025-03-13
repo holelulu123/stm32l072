@@ -239,6 +239,7 @@ void SX1276_ResetImplicitMode(SX1276_Object Obj);
 void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue);
 void SX1276_SetPayloadSize(SX1276_Object Obj, __uint8_t payloadsize);
 __uint8_t SX1276_GetPayloadSize(SX1276_Object Obj);
+void SX1276_RxPayloadCrc(SX1276_Object Obj, __uint8_t setReset);
 
 // SX1276 Helpers
 void SX1276_ClearIrq(SX1276_Object Obj, __uint8_t bitToClear);

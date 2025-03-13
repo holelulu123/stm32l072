@@ -7,8 +7,26 @@
 #include "spi.h"
 #include "uart.h"
 
+static __uint8_t RxPayloadCrcOn = 0;
 static __uint8_t SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr; 
 static __uint8_t SX1276_FifoPtrRx = SX1276_FifoRxBaseAddr;
+void SX1276_RxPayloadCrc(SX1276_Object Obj, __uint8_t setReset){
+    /**
+     * Sets / Resets the RxPayloadCrcOn bit on the RegModemConfig2 Register
+     * Set = 1, Reset 0
+     */
+    __uint8_t ModemConfig2 = SPI_ReadRegister(RegModemConfig2, Obj.SPI_Obj);
+    if (setReset){
+        ModemConfig2 |= (RegModemConfig2_RxPayloadCrcOn);
+        RxPayloadCrcOn = 1;
+    }
+    else{
+        ModemConfig2 &= (RegModemConfig2_RxPayloadCrcOn);
+        RxPayloadCrcOn = 0;
+    }
+    SPI_WriteRegister(RegModemConfig2, ModemConfig2, Obj.SPI_Obj);
+
+}
 
 void SX1276_ClearIrq(SX1276_Object Obj, __uint8_t bitToClear){
     /**
@@ -243,7 +261,20 @@ void SX1276_RxCon(SX1276_Object Obj){
             flag_finished = 1;
         }
     } 
-    
+    __uint8_t crcError = SPI_ReadRegister(RegIrqFlags, Obj.SPI_Obj);
+    crcError = (crcError >> RegIrqFlags_PayloadCrcError_Pos) & 0x1;
+    if (crcError){
+        /**
+         * There is an error in the comminication, print something for test
+         */
+        SX1276_ClearIrq(Obj, RegIrqFlags_PayloadCrcError_Pos);
+        UART_printf("CRC ERROR\r\n");
+    }
+    else {
+        /**
+         * There isn't an error in the communication
+         */
+    }
     SX1276_SetMode(Obj, Mode_Stdby);
     UART_printf("%s\r\n", message);
     // return message;
