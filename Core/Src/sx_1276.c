@@ -7,9 +7,34 @@
 #include "spi.h"
 #include "uart.h"
 
+static __uint8_t HFPort = 1; // By default, Transceiver set to work in the HF (band 1)
 static __uint8_t RxPayloadCrcOn = 0;
 static __uint8_t SX1276_FifoPtrTx = SX1276_FifoTxBaseAddr; 
 static __uint8_t SX1276_FifoPtrRx = SX1276_FifoRxBaseAddr;
+
+void SX1276_SetSyncWord(SX1276_Object Obj, __uint8_t SyncWord){
+    /**
+     * Sets new Sync word for the SX1276 IC
+     */
+    SPI_WriteRegister(RegSyncWord, SyncWord, Obj.SPI_Obj);
+}
+
+int SX1276_GetRssiValue(SX1276_Object Obj){
+    /**
+     * Read the Rssi Value of the last packet in dBm
+     */
+    __uint8_t RssiValue = SPI_ReadRegister(RegPktRssiValue, Obj.SPI_Obj);
+    int Rssi_dBm;
+    if (HFPort){
+        Rssi_dBm = -157 + RssiValue;
+    }
+    else{
+        Rssi_dBm = -164 + RssiValue;
+    }
+    return Rssi_dBm;
+
+}
+
 void SX1276_RxPayloadCrc(SX1276_Object Obj, __uint8_t setReset){
     /**
      * Sets / Resets the RxPayloadCrcOn bit on the RegModemConfig2 Register
@@ -143,8 +168,6 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
 
     // Calculate the freq and divide it to lsb, msb, mid 
     int frf = (freq / FSTEP);
-    UART_printf("Freq is: %d\r\n", frf); // To Delete this line 
-    UART_printf("Step is: %f\r\n", FSTEP); // To Delete this line
     __uint8_t msb = 0xFF & (frf >> 16);
     __uint8_t mid = 0xFF & (frf >> 8);
     __uint8_t lsb = 0xFF & frf;
@@ -268,15 +291,15 @@ void SX1276_RxCon(SX1276_Object Obj){
          * There is an error in the comminication, print something for test
          */
         SX1276_ClearIrq(Obj, RegIrqFlags_PayloadCrcError_Pos);
-        UART_printf("CRC ERROR\r\n");
     }
     else {
         /**
          * There isn't an error in the communication
          */
     }
+    int rssi = SX1276_GetRssiValue(Obj);
     SX1276_SetMode(Obj, Mode_Stdby);
-    UART_printf("%s\r\n", message);
+    UART_printf("PayloadSize: %d | RSSI: %d dBm | message: %s | CRC ERROR: %d \r\n", payloadSize, rssi, message, crcError);
     // return message;
 
 }

@@ -226,23 +226,25 @@ typedef enum LoraModes : __uint8_t {
 void SX1276_Init(SX1276_Object Obj);
 void SX1276_SetMode(SX1276_Object Obj, enum LoraModes Mode);
 
-// PHY level configuration
+// PHY level configuration (first layer)
 void SX1276_SetBW(SX1276_Object Obj, enum LoraBw BW);
 void SX1276_SetSF(SX1276_Object Obj, enum LoraSpreadingFactor SF);
 void SX1276_SetFreq(SX1276_Object Obj, float freq);
 void SX1276_GetFeiValue(SX1276_Object Obj);
 
-// Commuication Data Stracture
+// Commuication Data Stracture (second layer)
+void      SX1276_SetSyncWord(SX1276_Object Obj, __uint8_t SyncWord);
 __uint8_t SX1276_GetSyncWord(SX1276_Object Obj);
-void SX1276_SetImplicitMode(SX1276_Object Obj);
-void SX1276_ResetImplicitMode(SX1276_Object Obj);
-void SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue);
-void SX1276_SetPayloadSize(SX1276_Object Obj, __uint8_t payloadsize);
+void      SX1276_SetImplicitMode(SX1276_Object Obj);
+void      SX1276_ResetImplicitMode(SX1276_Object Obj);
+void      SX1276_SetPrambleLength(SX1276_Object Obj, __uint16_t preambleValue);
+void      SX1276_SetPayloadSize(SX1276_Object Obj, __uint8_t payloadsize);
 __uint8_t SX1276_GetPayloadSize(SX1276_Object Obj);
-void SX1276_RxPayloadCrc(SX1276_Object Obj, __uint8_t setReset);
+void      SX1276_RxPayloadCrc(SX1276_Object Obj, __uint8_t setReset);
 
 // SX1276 Helpers
 void SX1276_ClearIrq(SX1276_Object Obj, __uint8_t bitToClear);
+int  SX1276_GetRssiValue(SX1276_Object Obj);
 
 // SX1276 Main Purpose tasks
 void       SX1276_Tx   (SX1276_Object Obj, __uint8_t *transmit_word, __uint8_t size);
