@@ -164,6 +164,13 @@ void SX1276_SetFreq(SX1276_Object Obj, float freq){
      * @param freq -> sets the RF carrier frequency of the LO of the SX1276
      */
     // Switch to stdby mode
+    if (freq > 779e6){
+        //set for HF
+        
+    }
+    else { 
+        // set for LF
+    }
     SX1276_SetMode(Obj, Mode_Stdby);
 
     // Calculate the freq and divide it to lsb, msb, mid 
