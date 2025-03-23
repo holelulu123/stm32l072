@@ -64,7 +64,7 @@ def friis_transmittion_equation(frequency, power_transmit, transmit_antenna_gain
     '''
     # User Configurable Settings
     c = 299792458
-    max_distance = 10000000  # in meters
+    max_distance = 1000 # in meters
 
     # Calculating Wavelength
     wavelength = c / frequency
@@ -77,7 +77,7 @@ def friis_transmittion_equation(frequency, power_transmit, transmit_antenna_gain
         power_receive[i - 1] = power_transmit + transmit_antenna_gain + receive_antenna_gain + 20 * np.log10(wavelength / (4 * np.pi * i))
         if not plot:
             if power_receive[i - 1] <= sensitivity:
-                return i;
+                return i
     # Plotting the received power vs. distance
     if plot:
         plt.plot(range(1, max_distance + 1), power_receive)
@@ -95,4 +95,5 @@ def distance_between_recievers(d):
     c = 299792458 # m/s 
     t = d / c
     return t   
+
 
